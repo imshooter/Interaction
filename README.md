@@ -157,3 +157,41 @@
 > * #### NOTE:
 >    * Return `0` to `CANCEL` the player from picking up the item in the world.
 >    * Return `1` for the player pick up the item in the world.
+
+# Entrance Callbacks
+
+#### OnPlayerEnterExteriorArea
+> * #### Parameters:
+>    * `TODO`
+> * #### Returns:
+>    * ` 0`: Breaks subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+>    * ` 1`: Continues with subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+>    * `~0`: Breaks subsequent calls to `OnPlayerEnterExteriorArea` and `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+>    * `~1`: Breaks subsequent calls to `OnPlayerEnterExteriorArea` and continues subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+
+#### OnPlayerEnterInteriorArea
+> * #### Parameters:
+>    * `TODO`
+> * #### Returns:
+>    * ` 0`: Breaks subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+>    * ` 1`: Continues with subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+>    * `~0`: Breaks subsequent calls to `OnPlayerEnterInteriorArea` and `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+>    * `~1`: Breaks subsequent calls to `OnPlayerEnterInteriorArea` and continues subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+
+#### OnPlayerLeaveExteriorArea
+> * #### Parameters:
+>    * `TODO`
+> * #### Returns:
+>    * ` 0`: Breaks subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+>    * ` 1`: Continues with subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+>    * `~0`: Breaks subsequent calls to `OnPlayerLeaveExteriorArea` and `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+>    * `~1`: Breaks subsequent calls to `OnPlayerLeaveExteriorArea` and continues subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+
+#### OnPlayerLeaveInteriorArea
+> * #### Parameters:
+>    * `TODO`
+> * #### Returns:
+>    * ` 0`: Breaks subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+>    * ` 1`: Continues with subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+>    * `~0`: Breaks subsequent calls to `OnPlayerLeaveInteriorArea` and `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+>    * `~1`: Breaks subsequent calls to `OnPlayerLeaveInteriorArea` and continues subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
