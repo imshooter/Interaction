@@ -86,9 +86,59 @@ forward bool:GetPlayerInteriorButton(playerid, &Button:buttonid);
 forward bool:SetPlayerInteriorEntrance(playerid, Entrance:entranceid, Float:offset = ENTRANCE_DEFAULT_FORWARD_OFFSET);
 forward bool:GetPlayerInteriorEntrance(playerid, &Entrance:entranceid);
 
+/**
+ * # Events
+ */
+
+/**
+ * # OnPlayerEnterExteriorArea
+ *
+ * # Returns
+ *  -  `0`: Breaks subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+ *  -  `1`: Continues with subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+ *
+ *  - `~0`: Breaks subsequent calls to `OnPlayerEnterExteriorArea` and `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+ *  - `~1`: Breaks subsequent calls to `OnPlayerEnterExteriorArea` and continues subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+ */
+
 forward OnPlayerEnterExteriorArea(playerid, Entrance:entranceid);
+
+/**
+ * # OnPlayerEnterInteriorArea
+ *
+ * # Returns
+ *  -  `0`: Breaks subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+ *  -  `1`: Continues with subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+ *
+ *  - `~0`: Breaks subsequent calls to `OnPlayerEnterInteriorArea` and `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+ *  - `~1`: Breaks subsequent calls to `OnPlayerEnterInteriorArea` and continues subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
+ */
 forward OnPlayerEnterInteriorArea(playerid, Entrance:entranceid);
+
+/**
+ * # OnPlayerLeaveExteriorArea
+ *
+ * # Returns
+ *  -  `0`: Breaks subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+ *  -  `1`: Continues with subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+ *
+ *  - `~0`: Breaks subsequent calls to `OnPlayerLeaveExteriorArea` and `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+ *  - `~1`: Breaks subsequent calls to `OnPlayerLeaveExteriorArea` and continues subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+ */
+
 forward OnPlayerLeaveExteriorArea(playerid, Entrance:entranceid);
+
+/**
+ * # OnPlayerLeaveInteriorArea
+ *
+ * # Returns
+ *  -  `0`: Breaks subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+ *  -  `1`: Continues with subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+ *
+ *  - `~0`: Breaks subsequent calls to `OnPlayerLeaveInteriorArea` and `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+ *  - `~1`: Breaks subsequent calls to `OnPlayerLeaveInteriorArea` and continues subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+ */
+
 forward OnPlayerLeaveInteriorArea(playerid, Entrance:entranceid);
 
 /**
