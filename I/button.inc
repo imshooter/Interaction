@@ -26,7 +26,7 @@
 #endif
 
 #if !defined MAX_PLAYER_BUTTONS
-    #define MAX_PLAYER_BUTTONS (16)
+    #define MAX_PLAYER_BUTTONS (8)
 #endif
 
 #if !defined BUTTON_DEFAULT_KEY
@@ -108,7 +108,7 @@ forward bool:GetPlayerNearbyButtons(playerid, Button:buttons[MAX_PLAYER_BUTTONS]
  * # OnButtonCreate
  *
  * # Returns
- *  - `~0` or `~1`: Breaks subsequent calls to `OnButtonCreate`.
+ *   - This callback does not handle returns.
  */
 
 forward OnButtonCreate(Button:buttonid);
@@ -117,7 +117,7 @@ forward OnButtonCreate(Button:buttonid);
  * # OnButtonDestroy
  *
  * # Returns
- *  - `~0` or `~1`: Breaks subsequent calls to `OnButtonDestroy`.
+ *   - This callback does not handle returns.
  */
 
 forward OnButtonDestroy(Button:buttonid);
@@ -126,11 +126,8 @@ forward OnButtonDestroy(Button:buttonid);
  * # OnButtonPress
  *
  * # Returns
- *  -  `0`: Breaks subsequent calls to `OnPlayerKeyStateChange`.
- *  -  `1`: Continues with subsequent calls to `OnPlayerKeyStateChange`.
- *
- *  - `~0`: Breaks subsequent calls to `OnButtonPress` and `OnPlayerKeyStateChange`.
- *  - `~1`: Breaks subsequent calls to `OnButtonPress` and continues subsequent calls to `OnPlayerKeyStateChange`.
+ *   - `0`: (Continue) Continues subsequent calls to `OnPlayerKeyStateChange`.
+ *   - `1`: (OK) Breaks subsequent calls to `OnPlayerKeyStateChange`.
  */
 
 forward OnButtonPress(playerid, Button:buttonid);
@@ -139,11 +136,8 @@ forward OnButtonPress(playerid, Button:buttonid);
  * # OnButtonRelease
  *
  * # Returns
- *  -  `0`: Breaks subsequent calls to `OnPlayerKeyStateChange`.
- *  -  `1`: Continues with subsequent calls to `OnPlayerKeyStateChange`.
- *
- *  - `~0`: Breaks subsequent calls to `OnButtonRelease` and `OnPlayerKeyStateChange`.
- *  - `~1`: Breaks subsequent calls to `OnButtonRelease` and continues subsequent calls to `OnPlayerKeyStateChange`.
+ *   - `0`: (Continue) Continues subsequent calls to `OnPlayerKeyStateChange`.
+ *   - `1`: (OK) Breaks subsequent calls to `OnPlayerKeyStateChange`.
  */
 
 forward OnButtonRelease(playerid, Button:buttonid);
@@ -152,11 +146,8 @@ forward OnButtonRelease(playerid, Button:buttonid);
  * # OnPlayerEnterButtonArea
  *
  * # Returns
- *  -  `0`: Breaks subsequent calls to `OnPlayerEnterDynamicArea`.
- *  -  `1`: Continues with subsequent calls to `OnPlayerEnterDynamicArea`.
- *
- *  - `~0`: Breaks subsequent calls to `OnPlayerEnterButtonArea` and `OnPlayerEnterDynamicArea`.
- *  - `~1`: Breaks subsequent calls to `OnPlayerEnterButtonArea` and continues subsequent calls to `OnPlayerEnterDynamicArea`.
+ *   - `0`: (Continue) Continues subsequent calls to `OnPlayerEnterDynamicArea`.
+ *   - `1`: (OK) Breaks subsequent calls to `OnPlayerEnterDynamicArea`.
  */
 
 forward OnPlayerEnterButtonArea(playerid, Button:buttonid);
@@ -165,11 +156,8 @@ forward OnPlayerEnterButtonArea(playerid, Button:buttonid);
  * # OnPlayerLeaveButtonArea
  *
  * # Returns
- *  -  `0`: Breaks subsequent calls to `OnPlayerLeaveDynamicArea`.
- *  -  `1`: Continues with subsequent calls to `OnPlayerLeaveDynamicArea`.
- *
- *  - `~0`: Breaks subsequent calls to `OnPlayerLeaveButtonArea` and `OnPlayerLeaveDynamicArea`.
- *  - `~1`: Breaks subsequent calls to `OnPlayerLeaveButtonArea` and continues subsequent calls to `OnPlayerLeaveDynamicArea`.
+ *   - `0`: (Continue) Continues subsequent calls to `OnPlayerLeaveDynamicArea`.
+ *   - `1`: (OK) Breaks subsequent calls to `OnPlayerLeaveDynamicArea`.
  */
 
 forward OnPlayerLeaveButtonArea(playerid, Button:buttonid);
@@ -633,13 +621,15 @@ hook OnPlayerKeyStateChange(playerid, KEY:newkeys, KEY:oldkeys) {
     }
 
     if (newkeys & gButtonData[buttonid][E_BUTTON_KEYS]) {
-        if (!CallLocalFunction("OnButtonPress", "ii", playerid, _:buttonid)) {
+        if (CallLocalFunction("OnButtonPress", "ii", playerid, _:buttonid)) {
             return ~1;
         }
+
+        return 1;
     }
 
     if (oldkeys & gButtonData[buttonid][E_BUTTON_KEYS]) {
-        if (!CallLocalFunction("OnButtonRelease", "ii", playerid, _:buttonid)) {
+        if (CallLocalFunction("OnButtonRelease", "ii", playerid, _:buttonid)) {
             return ~1;
         }
     }
@@ -648,56 +638,40 @@ hook OnPlayerKeyStateChange(playerid, KEY:newkeys, KEY:oldkeys) {
 }
 
 hook OnPlayerEnterDynamicArea(playerid, STREAMER_TAG_AREA:areaid) {
-    if (GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) {
-        return 1;
-    }
+    if (GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && gInButtonCount{playerid} != (MAX_PLAYER_BUTTONS - 1)) {
+        new
+            data[2]
+        ;
+        
+        Streamer_GetArrayData(STREAMER_TYPE_AREA, areaid, E_STREAMER_EXTRA_ID, data);
 
-    if (gInButtonCount{playerid} >= (MAX_PLAYER_BUTTONS - 1)) {
-        return 1;
-    }
+        if (data[0] == BUTTON_STREAMER_IDENTIFIER) {
+            gInButtonCount{playerid}++;
 
-    new
-        data[2]
-    ;
-    
-    Streamer_GetArrayData(STREAMER_TYPE_AREA, areaid, E_STREAMER_EXTRA_ID, data);
-
-    if (data[0] != BUTTON_STREAMER_IDENTIFIER) {
-        return 1;
-    }
-
-    gInButtonCount{playerid}++;
-
-    if (!CallLocalFunction("OnPlayerEnterButtonArea", "ii", playerid, data[1])) {
-        return ~1;
+            if (CallLocalFunction("OnPlayerEnterButtonArea", "ii", playerid, data[1])) {
+                return ~1;
+            }
+        }
     }
 
     return 1;
 }
 
 hook OnPlayerLeaveDynamicArea(playerid, STREAMER_TAG_AREA:areaid) {
-    if (GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) {
-        return 1;
-    }
+    if (GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && gInButtonCount{playerid} != 0) {
+        new
+            data[2]
+        ;
+        
+        Streamer_GetArrayData(STREAMER_TYPE_AREA, areaid, E_STREAMER_EXTRA_ID, data);
 
-    if (gInButtonCount{playerid} == 0) {
-        return 1;
-    }
+        if (data[0] == BUTTON_STREAMER_IDENTIFIER) {
+            gInButtonCount{playerid}--;
 
-    new
-        data[2]
-    ;
-    
-    Streamer_GetArrayData(STREAMER_TYPE_AREA, areaid, E_STREAMER_EXTRA_ID, data);
-
-    if (data[0] != BUTTON_STREAMER_IDENTIFIER) {
-        return 1;
-    }
-
-    gInButtonCount{playerid}--;
-
-    if (!CallLocalFunction("OnPlayerLeaveButtonArea", "ii", playerid, data[1])) {
-        return ~1;
+            if (CallLocalFunction("OnPlayerLeaveButtonArea", "ii", playerid, data[1])) {
+                return ~1;
+            }
+        }
     }
 
     return 1;
