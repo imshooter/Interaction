@@ -59,6 +59,8 @@
 > * **GetEntranceExteriorVirtualWorld**`(Entrance:entranceid)`
 > * **GetEntranceExteriorInterior**`(Entrance:entranceid)`
 > * **GetExteriorButton**`(Entrance:entranceid, &Button:buttonid)`
+> * **HasButtonExteriorEntrance**`(Button:buttonid)`
+> * **GetButtonExteriorEntrance**`(Button:buttonid, &Entrance:entranceid)`
 > * **GetPlayerExteriorButton**`(playerid, &Button:buttonid)`
 > * **SetPlayerExteriorEntrance**`(playerid, Entrance:entranceid, Float:offset = 1.0)`
 > * **GetPlayerExteriorEntrance**`(playerid, &Entrance:entranceid)`
@@ -68,6 +70,8 @@
 > * **GetEntranceInteriorVirtualWorld**`(Entrance:entranceid)`
 > * **GetEntranceInteriorInterior**`(Entrance:entranceid)`
 > * **GetInteriorButton**`(Entrance:entranceid, &Button:buttonid)`
+> * **HasButtonInteriorEntrance**`(Button:buttonid)`
+> * **GetButtonInteriorEntrance**`(Button:buttonid, &Entrance:entranceid)`
 > * **GetPlayerInteriorButton**`(playerid, &Button:buttonid)`
 > * **SetPlayerInteriorEntrance**`(playerid, Entrance:entranceid, Float:offset = 1.0)`
 > * **GetPlayerInteriorEntrance**`(playerid, &Entrance:entranceid)`
