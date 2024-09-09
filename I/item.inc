@@ -253,19 +253,46 @@ forward OnPlayerPickUpItem(playerid, Item:itemid, Item:items[], count);
  * # OnPlayerPickUpItem
  *
  * # Returns
- *   - `0`: Allows the player to successfully pick up the item from the world.
- *   - `1`: Prevents the player from picking up the item.
- */
-
-/**
- * # TODO:
+ *   - `0`: Allows the player the animation of picking up the item from the world.
+ *   - `1`: Prevents the animation from picking up the item in the world.
  */
 
 forward OnPlayerPickedUpItem(playerid, Item:itemid);
+
+/**
+ * # OnPlayerPickedUpItem
+ *
+ * # Returns
+ *   - `0`: Allows the item to be attached to the player.
+ *   - `1`: Prevents the item from being attached to the player.
+ */
+
 forward OnPlayerDroppedItem(playerid, Item:itemid);
 
+/**
+ * # OnPlayerDroppedItem
+ *
+ * # Returns
+ *   - This callback does not handle returns.
+ */
+
 forward OnItemAttachToPlayer(playerid, Item:itemid);
+
+/**
+ * # OnItemAttachToPlayer
+ *
+ * # Returns
+ *   - This callback does not handle returns.
+ */
+
 forward OnItemDetachFromPlayer(playerid, Item:itemid);
+
+/**
+ * # OnItemDetachFromPlayer
+ *
+ * # Returns
+ *   - This callback does not handle returns.
+ */
 
 /**
  * # Item Build
@@ -376,10 +403,6 @@ stock Item:CreateItem(ItemBuild:buildid, const uuid[] = "") {
     }
 
     gItemData[itemid][E_ITEM_BUILD_ID] = buildid;
-
-    // Item World
-    gItemData[itemid][E_ITEM_BUTTON_ID] = INVALID_BUTTON_ID;
-    gItemData[itemid][E_ITEM_OBJECT_ID] = STREAMER_TAG_OBJECT:INVALID_STREAMER_ID;
 
     CallLocalFunction("OnItemCreate", "i", _:itemid);
 
@@ -811,15 +834,19 @@ stock timer PickUpItemDelay[400](playerid, bool:animation) {
     GiveWorldItemToPlayer(playerid, itemid);
 }
 
-stock timer DropItemDelay[400](playerid, Float:x, Float:y, Float:z) {
+stock timer DropItemDelay[400](playerid) {
     if (!IsValidItem(gHoldItemID[playerid])) {
         return;
     }
 
     new
+        Float:x,
+        Float:y,
+        Float:z,
         Float:a
     ;
 
+    GetPlayerPos(playerid, x, y, z);
     GetPlayerFacingAngle(playerid, a);
 
     new const
@@ -917,14 +944,6 @@ stock PlayerDropItem(playerid) {
         return 3;
     }
 
-    new
-        Float:x,
-        Float:y,
-        Float:z
-    ;
-
-    GetPlayerPos(playerid, x, y, z);
-
     new const
         Item:itemid = gHoldItemID[playerid],
         ItemBuild:buildid = gItemData[itemid][E_ITEM_BUILD_ID]
@@ -939,7 +958,7 @@ stock PlayerDropItem(playerid) {
         ApplyAnimation(playerid, "BOMBER", "BOM_PLANT_IN", 5.0, true, false, false, false, 450);
     }
 
-    gInteractTimer[playerid] = defer DropItemDelay(playerid, x, y, z);
+    gInteractTimer[playerid] = defer DropItemDelay(playerid);
 
     return 0;
 }
@@ -1126,4 +1145,16 @@ hook OnPlayerLeaveButtonArea(playerid, Button:buttonid) {
     }
     
     return 0;
+}
+
+hook OnPlayerDisconnect(playerid, reason) {
+    if (gHoldItemID[playerid] != INVALID_ITEM_ID) {
+        /**
+         * The Item will still exist if the player disconnects while holding an item.
+         */
+
+        RemoveCurrentItem(playerid);
+    }
+    
+    return 1;
 }

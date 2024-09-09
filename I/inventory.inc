@@ -32,8 +32,8 @@ forward RemoveItemFromInventory(playerid, index, &Item:itemid = INVALID_ITEM_ID,
 forward bool:IsInventoryEmpty(playerid);
 forward bool:IsInventoryFull(playerid);
 forward bool:IsInventorySlotUsed(playerid, index);
-forward bool:GetInventorySlotItem(playerid, index, &Item:itemid);
-forward bool:GetInventoryContainer(playerid, &Container:containerid);
+forward GetInventorySlotItem(playerid, index, &Item:itemid);
+forward GetInventoryContainer(playerid, &Container:containerid);
 
 /**
  * # Events
@@ -46,9 +46,9 @@ forward OnItemRemoveFromInventory(playerid, Item:itemid, index);
  * # Iter
  */
 
-stock bool:Iter_Func@InventoryItem(playerid) {
+stock Iter_Func@InventoryItem(playerid) {
     if (!IsPlayerConnected(playerid)) {
-        return false;
+        return 1;
     }
 
     new
@@ -59,7 +59,7 @@ stock bool:Iter_Func@InventoryItem(playerid) {
         yield return (_:itemid);
     }
 
-    return true;
+    return 0;
 }
 
 #define Iterator@InventoryItem iteryield
@@ -110,7 +110,7 @@ stock RemoveItemFromInventory(playerid, index, &Item:itemid = INVALID_ITEM_ID, b
 
 stock bool:IsInventoryEmpty(playerid) {
     if (!IsPlayerConnected(playerid)) {
-        return undefined;
+        return false;
     }
 
     return IsContainerEmpty(gOwnerContainerID[playerid]);
@@ -118,7 +118,7 @@ stock bool:IsInventoryEmpty(playerid) {
 
 stock bool:IsInventoryFull(playerid) {
     if (!IsPlayerConnected(playerid)) {
-        return undefined;
+        return false;
     }
 
     return IsContainerFull(gOwnerContainerID[playerid]);
@@ -132,22 +132,30 @@ stock bool:IsInventorySlotUsed(playerid, index) {
     return IsContainerSlotUsed(gOwnerContainerID[playerid], index);
 }
 
-stock bool:GetInventorySlotItem(playerid, index, &Item:itemid) {
+stock GetInventorySlotItem(playerid, index, &Item:itemid) {
     if (!IsPlayerConnected(playerid)) {
-        return false;
+        return 1;
     }
 
-    return GetContainerSlotItem(gOwnerContainerID[playerid], index, itemid);
+    new const
+        ret = GetContainerSlotItem(gOwnerContainerID[playerid], index, itemid)
+    ;
+
+    if (ret) {
+        return (ret + 1);
+    }
+
+    return 0;
 }
 
-stock bool:GetInventoryContainer(playerid, &Container:containerid) {
+stock GetInventoryContainer(playerid, &Container:containerid) {
     if (!IsPlayerConnected(playerid)) {
-        return false;
+        return 1;
     }
 
     containerid = gOwnerContainerID[playerid];
 
-    return true;
+    return 0;
 }
 
 /**
@@ -175,7 +183,7 @@ static timer PlayerInvTearDownInternal[1](playerid) {
     ;
 
     if (!DestroyContainer(gOwnerContainerID[playerid])) {
-        printf("[INVENTORY]: (PlayerInvSetupInternal) -> Failed to destroy inventory container (%i) for player (%i).", _:gOwnerContainerID[playerid], playerid);
+        printf("[INVENTORY]: (PlayerInvTearDownInternal) -> Failed to destroy inventory container (%i) for player (%i).", _:gOwnerContainerID[playerid], playerid);
     }
 
     gOwnerContainerID[playerid] = INVALID_CONTAINER_ID;
