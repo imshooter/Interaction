@@ -53,24 +53,24 @@ new
  * # Functions
  */
 
-stock Container:CreateContainer(const name[], size, bool:ordered = true);
-stock bool:IsValidContainer(Container:containerid);
-stock DestroyContainer(Container:containerid, bool:clear = true);
-stock SetContainerName(Container:containerid, const name[]);
-stock GetContainerName(Container:containerid, output[], len = sizeof (output));
-stock SetContainerSize(Container:containerid, size);
-stock GetContainerSize(Container:containerid);
-stock SetContainerOrdered(Container:containerid, bool:ordered);
-stock bool:IsContainerOrdered(Container:containerid);
-stock GetContainerItemCount(Container:containerid);
-stock AddItemToContainer(Container:containerid, Item:itemid, &index = -1, playerid = INVALID_PLAYER_ID, bool:call = true);
-stock RemoveItemFromContainer(Container:containerid, index, &Item:itemid = INVALID_ITEM_ID, playerid = INVALID_PLAYER_ID, bool:call = true);
-stock TransferContainerItem(Container:containerid1, Container:containerid2, index, &Item:itemid = INVALID_ITEM_ID);
-stock bool:IsContainerEmpty(Container:containerid);
-stock bool:IsContainerFull(Container:containerid);
-stock bool:IsContainerSlotUsed(Container:containerid, index);
-stock GetContainerSlotItem(Container:containerid, index, &Item:itemid);
-stock GetItemContainerData(Item:itemid, &Container:containerid = INVALID_CONTAINER_ID, &index = -1);
+forward Container:CreateContainer(const name[], size, bool:ordered = true);
+forward bool:IsValidContainer(Container:containerid);
+forward DestroyContainer(Container:containerid, bool:clear = true);
+forward SetContainerName(Container:containerid, const name[]);
+forward GetContainerName(Container:containerid, output[], len = sizeof (output));
+forward SetContainerSize(Container:containerid, size);
+forward GetContainerSize(Container:containerid);
+forward SetContainerOrdered(Container:containerid, bool:ordered);
+forward bool:IsContainerOrdered(Container:containerid);
+forward GetContainerItemCount(Container:containerid);
+forward AddItemToContainer(Container:containerid, Item:itemid, &index = -1, playerid = INVALID_PLAYER_ID, bool:call = true);
+forward RemoveItemFromContainer(Container:containerid, index, &Item:itemid = INVALID_ITEM_ID, playerid = INVALID_PLAYER_ID, bool:call = true);
+forward TransferContainerItem(Container:containerid1, Container:containerid2, index, &Item:itemid = INVALID_ITEM_ID);
+forward bool:IsContainerEmpty(Container:containerid);
+forward bool:IsContainerFull(Container:containerid);
+forward bool:IsContainerSlotUsed(Container:containerid, index);
+forward GetContainerSlotItem(Container:containerid, index, &Item:itemid);
+forward GetItemContainerData(Item:itemid, &Container:containerid = INVALID_CONTAINER_ID, &index = -1);
 
 /**
  * # Events
@@ -209,7 +209,7 @@ stock SetContainerOrdered(Container:containerid, bool:ordered) {
 
 stock bool:IsContainerOrdered(Container:containerid) {
     if (!IsValidContainer(containerid)) {
-        return undefined;
+        return false;
     }
 
     return pool_is_ordered(gContainerData[containerid][E_CONTAINER_POOL]);
@@ -296,7 +296,7 @@ stock TransferContainerItem(Container:containerid1, Container:containerid2, inde
 
 stock bool:IsContainerEmpty(Container:containerid) {
     if (!IsValidContainer(containerid)) {
-        return undefined;
+        return false;
     }
 
     return (pool_size(gContainerData[containerid][E_CONTAINER_POOL]) == 0);
@@ -304,7 +304,7 @@ stock bool:IsContainerEmpty(Container:containerid) {
 
 stock bool:IsContainerFull(Container:containerid) {
     if (!IsValidContainer(containerid)) {
-        return undefined;
+        return false;
     }
 
     return (pool_size(gContainerData[containerid][E_CONTAINER_POOL]) >= pool_capacity(gContainerData[containerid][E_CONTAINER_POOL]));
@@ -312,7 +312,7 @@ stock bool:IsContainerFull(Container:containerid) {
 
 stock bool:IsContainerSlotUsed(Container:containerid, index) {
     if (!IsValidContainer(containerid)) {
-        return undefined;
+        return false;
     }
 
     return pool_has(gContainerData[containerid][E_CONTAINER_POOL], index);

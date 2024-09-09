@@ -646,3 +646,9 @@ hook OnPlayerLeaveDynamicArea(playerid, STREAMER_TAG_AREA:areaid) {
 
     return 1;
 }
+
+hook OnPlayerDisconnect(playerid, reason) {
+    gInButtonCount{playerid} = 0;
+    
+    return 1;
+}
