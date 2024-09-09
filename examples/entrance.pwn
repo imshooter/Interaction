@@ -65,54 +65,54 @@ public OnPlayerEnterExteriorArea(playerid, Entrance:entranceid) {
     if (entranceid == gBincoEntranceID) {
         GameTextForPlayer(playerid, "Press ~k~~VEHICLE_ENTER_EXIT~ to enter the Binco.", 3000, 15);
 
-        return 0; // (Hook) ~0
+        return 1; // (Hook) ~1
     }
 
     if (entranceid == gCluckinBellEntranceID) {
         GameTextForPlayer(playerid, "Press ~k~~VEHICLE_ENTER_EXIT~ to enter the Cluckin Bell.", 3000, 15);
 
-        return 0; // (Hook) ~0
+        return 1; // (Hook) ~1
     }
 
     if (entranceid == gZIPEntranceID) {
         GameTextForPlayer(playerid, "Press ~k~~VEHICLE_ENTER_EXIT~ to enter the ZIP.", 3000, 15);
 
-        return 0; // (Hook) ~0
+        return 1; // (Hook) ~1
     }
 
     if (entranceid == gWellStackedPizzaEntranceID) {
         GameTextForPlayer(playerid, "Press ~k~~VEHICLE_ENTER_EXIT~ to enter the The Well Stacked Pizza Co.", 3000, 15);
 
-        return 0; // (Hook) ~0
+        return 1; // (Hook) ~1
     }
 
-    return 1;
+    return 0;
 }
 
 public OnPlayerEnterInteriorArea(playerid, Entrance:entranceid) {
     if (entranceid == gBincoEntranceID) {
         GameTextForPlayer(playerid, "Press ~k~~VEHICLE_ENTER_EXIT~ to leave the Binco.", 3000, 15);
 
-        return 0; // (Hook) ~0
+        return 1; // (Hook) ~1
     }
 
     if (entranceid == gCluckinBellEntranceID) {
         GameTextForPlayer(playerid, "Press ~k~~VEHICLE_ENTER_EXIT~ to leave the Cluckin Bell.", 3000, 15);
 
-        return 0; // (Hook) ~0
+        return 1; // (Hook) ~1
     }
 
     if (entranceid == gZIPEntranceID) {
         GameTextForPlayer(playerid, "Press ~k~~VEHICLE_ENTER_EXIT~ to leave the ZIP.", 3000, 15);
 
-        return 0; // (Hook) ~0
+        return 1; // (Hook) ~1
     }
 
     if (entranceid == gWellStackedPizzaEntranceID) {
         GameTextForPlayer(playerid, "Press ~k~~VEHICLE_ENTER_EXIT~ to leave the The Well Stacked Pizza Co.", 3000, 15);
 
-        return 0; // (Hook) ~0
+        return 1; // (Hook) ~1
     }
 
-    return 1;
+    return 0;
 }
