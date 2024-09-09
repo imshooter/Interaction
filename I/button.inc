@@ -78,28 +78,28 @@ new
  */
 
 forward Button:CreateButton(Float:x, Float:y, Float:z, KEY:buttonKey = BUTTON_DEFAULT_KEY, Float:size = 1.0, worldid = -1, interiorid = -1, priority = 0);
-forward DestroyButton(Button:buttonid);
+forward bool:DestroyButton(Button:buttonid);
 forward bool:IsValidButton(Button:buttonid);
-forward SetButtonPos(Button:buttonid, Float:x, Float:y, Float:z);
-forward GetButtonPos(Button:buttonid, &Float:x, &Float:y, &Float:z);
-forward SetButtonPriority(Button:buttonid, priority);
+forward bool:SetButtonPos(Button:buttonid, Float:x, Float:y, Float:z);
+forward bool:GetButtonPos(Button:buttonid, &Float:x, &Float:y, &Float:z);
+forward bool:SetButtonPriority(Button:buttonid, priority);
 forward GetButtonPriority(Button:buttonid);
-forward SetButtonSize(Button:buttonid, Float:size);
-forward GetButtonSize(Button:buttonid, &Float:size);
-forward SetButtonVirtualWorld(Button:buttonid, worldid);
+forward bool:SetButtonSize(Button:buttonid, Float:size);
+forward bool:GetButtonSize(Button:buttonid, &Float:size);
+forward bool:SetButtonVirtualWorld(Button:buttonid, worldid);
 forward GetButtonVirtualWorld(Button:buttonid);
-forward SetButtonInterior(Button:buttonid, interiorid);
+forward bool:SetButtonInterior(Button:buttonid, interiorid);
 forward GetButtonInterior(Button:buttonid);
-forward SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...);
-forward GetButtonPopupText(Button:buttonid, output[], len = sizeof (output));
-forward SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...);
-forward UpdateButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...);
-forward DestroyButtonTextLabel(Button:buttonid);
-forward GetButtonDynamicArea(Button:buttonid, &STREAMER_TAG_AREA:areaid);
-forward GetButtonDynamic3DTextLabel(Button:buttonid, &STREAMER_TAG_3D_TEXT_LABEL:textid);
+forward bool:SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...);
+forward bool:GetButtonPopupText(Button:buttonid, output[], len = sizeof (output));
+forward bool:SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...);
+forward bool:UpdateButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...);
+forward bool:DestroyButtonTextLabel(Button:buttonid);
+forward bool:GetButtonDynamic3DTextLabel(Button:buttonid, &STREAMER_TAG_3D_TEXT_LABEL:textid);
+forward bool:GetButtonDynamicArea(Button:buttonid, &STREAMER_TAG_AREA:areaid);
 forward bool:IsPlayerInAnyButton(playerid);
-forward GetPlayerButton(playerid, &Button:buttonid);
-forward GetPlayerNearbyButtons(playerid, Button:buttons[MAX_AREA_BUTTONS] = { INVALID_BUTTON_ID, ... }, &count = 0);
+forward bool:GetPlayerButton(playerid, &Button:buttonid);
+forward bool:GetPlayerNearbyButtons(playerid, Button:buttons[MAX_AREA_BUTTONS] = { INVALID_BUTTON_ID, ... }, &count = 0);
 
 /**
  * # Events
@@ -203,9 +203,9 @@ stock Button:CreateButton(Float:x, Float:y, Float:z, KEY:buttonKey = BUTTON_DEFA
     return buttonid;
 }
 
-stock DestroyButton(Button:buttonid) {
+stock bool:DestroyButton(Button:buttonid) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     DestroyDynamicArea(gButtonData[buttonid][E_BUTTON_AREA_ID]);
@@ -221,7 +221,7 @@ stock DestroyButton(Button:buttonid) {
 
     CallLocalFunction("OnButtonDestroy", "i", _:buttonid);
 
-    return 0;
+    return true;
 }
 
 stock bool:IsValidButton(Button:buttonid) {
@@ -232,9 +232,9 @@ stock bool:IsValidButton(Button:buttonid) {
     return Iter_Contains(Button, buttonid);
 }
 
-stock SetButtonPos(Button:buttonid, Float:x, Float:y, Float:z) {
+stock bool:SetButtonPos(Button:buttonid, Float:x, Float:y, Float:z) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     Streamer_SetFloatData(STREAMER_TYPE_AREA, gButtonData[buttonid][E_BUTTON_AREA_ID], E_STREAMER_X, x);
@@ -251,29 +251,29 @@ stock SetButtonPos(Button:buttonid, Float:x, Float:y, Float:z) {
     gButtonData[buttonid][E_BUTTON_Y] = y;
     gButtonData[buttonid][E_BUTTON_Z] = z;
 
-    return 0;
+    return true;
 }
 
-stock GetButtonPos(Button:buttonid, &Float:x, &Float:y, &Float:z) {
+stock bool:GetButtonPos(Button:buttonid, &Float:x, &Float:y, &Float:z) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     x = gButtonData[buttonid][E_BUTTON_X];
     y = gButtonData[buttonid][E_BUTTON_Y];
     z = gButtonData[buttonid][E_BUTTON_Z];
 
-    return 0;
+    return true;
 }
 
-stock SetButtonPriority(Button:buttonid, priority) {
+stock bool:SetButtonPriority(Button:buttonid, priority) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     gButtonData[buttonid][E_BUTTON_PRIORITY] = priority;
 
-    return 0;
+    return true;
 }
 
 stock GetButtonPriority(Button:buttonid) {
@@ -284,31 +284,31 @@ stock GetButtonPriority(Button:buttonid) {
     return gButtonData[buttonid][E_BUTTON_PRIORITY];
 }
 
-stock SetButtonSize(Button:buttonid, Float:size) {
+stock bool:SetButtonSize(Button:buttonid, Float:size) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     Streamer_SetFloatData(STREAMER_TYPE_AREA, gButtonData[buttonid][E_BUTTON_AREA_ID], E_STREAMER_SIZE, size);
         
     gButtonData[buttonid][E_BUTTON_SIZE] = size;
 
-    return 0;
+    return true;
 }
 
-stock GetButtonSize(Button:buttonid, &Float:size) {
+stock bool:GetButtonSize(Button:buttonid, &Float:size) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
         
     size = gButtonData[buttonid][E_BUTTON_SIZE];
 
-    return 0;
+    return true;
 }
 
-stock SetButtonVirtualWorld(Button:buttonid, worldid) {
+stock bool:SetButtonVirtualWorld(Button:buttonid, worldid) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     if (gButtonData[buttonid][E_BUTTON_WORLD_ID] != worldid) {
@@ -321,7 +321,7 @@ stock SetButtonVirtualWorld(Button:buttonid, worldid) {
         gButtonData[buttonid][E_BUTTON_WORLD_ID] = worldid;
     }
 
-    return 0;
+    return true;
 }
 
 stock GetButtonVirtualWorld(Button:buttonid) {
@@ -332,9 +332,9 @@ stock GetButtonVirtualWorld(Button:buttonid) {
     return gButtonData[buttonid][E_BUTTON_WORLD_ID];
 }
 
-stock SetButtonInterior(Button:buttonid, interiorid) {
+stock bool:SetButtonInterior(Button:buttonid, interiorid) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     if (gButtonData[buttonid][E_BUTTON_INTERIOR_ID] != interiorid) {
@@ -347,7 +347,7 @@ stock SetButtonInterior(Button:buttonid, interiorid) {
         gButtonData[buttonid][E_BUTTON_INTERIOR_ID] = interiorid;
     }
 
-    return 0;
+    return true;
 }
 
 stock GetButtonInterior(Button:buttonid) {
@@ -358,9 +358,9 @@ stock GetButtonInterior(Button:buttonid) {
     return gButtonData[buttonid][E_BUTTON_INTERIOR_ID];
 }
 
-stock SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...) {
+stock bool:SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     new
@@ -376,22 +376,22 @@ stock SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...) {
 
     strpack(gButtonData[buttonid][E_BUTTON_TEXT], buffer);
 
-    return 0;
+    return true;
 }
 
-stock GetButtonPopupText(Button:buttonid, output[], len = sizeof (output)) {
+stock bool:GetButtonPopupText(Button:buttonid, output[], len = sizeof (output)) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     strunpack(output, gButtonData[buttonid][E_BUTTON_TEXT], len);
 
-    return 0;
+    return true;
 }
 
-stock SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...) {
+stock bool:SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     if (IsValidDynamic3DTextLabel(gButtonData[buttonid][E_BUTTON_TEXT3D_ID])) {
@@ -425,16 +425,16 @@ stock SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, F
         distance
     );
 
-    return 0;
+    return true;
 }
 
-stock UpdateButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...) {
+stock bool:UpdateButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     if (!IsValidDynamic3DTextLabel(gButtonData[buttonid][E_BUTTON_TEXT3D_ID])) {
-        return 2;
+        return false;
     }
 
     new
@@ -450,46 +450,46 @@ stock UpdateButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF
 
     UpdateDynamic3DTextLabelText(gButtonData[buttonid][E_BUTTON_TEXT3D_ID], colour, buffer);
 
-    return 0;
+    return true;
 }
 
-stock DestroyButtonTextLabel(Button:buttonid) {
+stock bool:DestroyButtonTextLabel(Button:buttonid) {
     if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     if (!IsValidDynamic3DTextLabel(gButtonData[buttonid][E_BUTTON_TEXT3D_ID])) {
-        return 2;
+        return false;
     }
 
     DestroyDynamic3DTextLabel(gButtonData[buttonid][E_BUTTON_TEXT3D_ID]);
     gButtonData[buttonid][E_BUTTON_TEXT3D_ID] = STREAMER_TAG_3D_TEXT_LABEL:INVALID_3DTEXT_ID;
 
-    return 0;
+    return true;
 }
 
-stock GetButtonDynamicArea(Button:buttonid, &STREAMER_TAG_AREA:areaid) {
+stock bool:GetButtonDynamic3DTextLabel(Button:buttonid, &STREAMER_TAG_3D_TEXT_LABEL:textid) {
     if (!IsValidButton(buttonid)) {
-        return 1;
-    }
-
-    areaid = gButtonData[buttonid][E_BUTTON_AREA_ID];
-
-    return 0;
-}
-
-stock GetButtonDynamic3DTextLabel(Button:buttonid, &STREAMER_TAG_3D_TEXT_LABEL:textid) {
-    if (!IsValidButton(buttonid)) {
-        return 1;
+        return false;
     }
 
     if (!IsValidDynamic3DTextLabel(gButtonData[buttonid][E_BUTTON_TEXT3D_ID])) {
-        return 2;
+        return false;
     }
 
     textid = gButtonData[buttonid][E_BUTTON_TEXT3D_ID];
 
-    return 0;
+    return true;
+}
+
+stock bool:GetButtonDynamicArea(Button:buttonid, &STREAMER_TAG_AREA:areaid) {
+    if (!IsValidButton(buttonid)) {
+        return false;
+    }
+
+    areaid = gButtonData[buttonid][E_BUTTON_AREA_ID];
+
+    return true;
 }
 
 stock bool:IsPlayerInAnyButton(playerid) {
@@ -500,13 +500,13 @@ stock bool:IsPlayerInAnyButton(playerid) {
     return (gInButtonCount{playerid} != 0);
 }
 
-stock GetPlayerButton(playerid, &Button:buttonid) {
+stock bool:GetPlayerButton(playerid, &Button:buttonid) {
     if (!IsPlayerConnected(playerid)) {
-        return 1;
+        return false;
     }
 
     if (gInButtonCount{playerid} == 0) {
-        return 2;
+        return false;
     }
 
     new
@@ -531,16 +531,16 @@ stock GetPlayerButton(playerid, &Button:buttonid) {
         }
     }
 
-    return (last == -1) ? 3 : 0;
+    return (last >= 0);
 }
 
-stock GetPlayerNearbyButtons(playerid, Button:buttons[MAX_AREA_BUTTONS] = { INVALID_BUTTON_ID, ... }, &count = 0) {
+stock bool:GetPlayerNearbyButtons(playerid, Button:buttons[MAX_AREA_BUTTONS] = { INVALID_BUTTON_ID, ... }, &count = 0) {
     if (!IsPlayerConnected(playerid)) {
-        return 1;
+        return false;
     }
 
     if (gInButtonCount{playerid} == 0) {
-        return 2;
+        return false;
     }
 
     new
@@ -570,7 +570,7 @@ stock GetPlayerNearbyButtons(playerid, Button:buttons[MAX_AREA_BUTTONS] = { INVA
         }
     }
 
-    return (count == 0) ? 3 : 0;
+    return (count != 0);
 }
 
 /**
@@ -586,7 +586,7 @@ hook OnPlayerKeyStateChange(playerid, KEY:newkeys, KEY:oldkeys) {
         Button:buttonid
     ;
 
-    if (GetPlayerButton(playerid, buttonid)) {
+    if (!GetPlayerButton(playerid, buttonid)) {
         return 1;
     }
 

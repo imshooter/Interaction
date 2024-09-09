@@ -27,28 +27,43 @@ static
  * # Functions
  */
 
-forward AddItemToInventory(playerid, Item:itemid, &index = -1, bool:call = true);
-forward RemoveItemFromInventory(playerid, index, &Item:itemid = INVALID_ITEM_ID, bool:call = true);
+forward bool:AddItemToInventory(playerid, Item:itemid, &index = -1, bool:call = true);
+forward bool:RemoveItemFromInventory(playerid, index, &Item:itemid = INVALID_ITEM_ID, bool:call = true);
 forward bool:IsInventoryEmpty(playerid);
 forward bool:IsInventoryFull(playerid);
 forward bool:IsInventorySlotUsed(playerid, index);
-forward GetInventorySlotItem(playerid, index, &Item:itemid);
-forward GetInventoryContainer(playerid, &Container:containerid);
+forward bool:GetInventorySlotItem(playerid, index, &Item:itemid);
+forward bool:GetInventoryContainer(playerid, &Container:containerid);
 
 /**
  * # Events
  */
 
 forward OnItemAddToInventory(playerid, Item:itemid, index);
+
+/**
+ * # OnItemAddToInventory
+ *
+ * # Returns
+ *   - This callback does not handle returns.
+ */
+
 forward OnItemRemoveFromInventory(playerid, Item:itemid, index);
+
+/**
+ * # OnItemRemoveFromInventory
+ *
+ * # Returns
+ *   - This callback does not handle returns.
+ */
 
 /**
  * # Iter
  */
 
-stock Iter_Func@InventoryItem(playerid) {
+stock bool:Iter_Func@InventoryItem(playerid) {
     if (!IsPlayerConnected(playerid)) {
-        return 1;
+        return false;
     }
 
     new
@@ -59,7 +74,7 @@ stock Iter_Func@InventoryItem(playerid) {
         yield return (_:itemid);
     }
 
-    return 0;
+    return true;
 }
 
 #define Iterator@InventoryItem iteryield
@@ -68,44 +83,36 @@ stock Iter_Func@InventoryItem(playerid) {
  * # External
  */
 
-stock AddItemToInventory(playerid, Item:itemid, &index = -1, bool:call = true) {
+stock bool:AddItemToInventory(playerid, Item:itemid, &index = -1, bool:call = true) {
     if (!IsPlayerConnected(playerid)) {
-        return 1;
+        return false;
     }
 
-    new const
-        ret = AddItemToContainer(gOwnerContainerID[playerid], itemid, index, playerid, call)
-    ;
-
-    if (ret) {
-        return (ret + 1);
+    if (!AddItemToContainer(gOwnerContainerID[playerid], itemid, index, playerid, call)) {
+        return false;
     }
 
     if (call) {
         CallLocalFunction("OnItemAddToInventory", "iii", playerid, _:itemid, index);
     }
 
-    return 0;
+    return true;
 }
 
-stock RemoveItemFromInventory(playerid, index, &Item:itemid = INVALID_ITEM_ID, bool:call = true) {
+stock bool:RemoveItemFromInventory(playerid, index, &Item:itemid = INVALID_ITEM_ID, bool:call = true) {
     if (!IsPlayerConnected(playerid)) {
-        return 1;
+        return false;
     }
 
-    new const
-        ret = RemoveItemFromContainer(gOwnerContainerID[playerid], index, itemid, playerid, call)
-    ;
-
-    if (ret) {
-        return (ret + 1);
+    if (!RemoveItemFromContainer(gOwnerContainerID[playerid], index, itemid, playerid, call)) {
+        return false;
     }
 
     if (call) {
         CallLocalFunction("OnItemRemoveFromInventory", "iii", playerid, _:itemid, index);
     }
 
-    return 0;
+    return true;
 }
 
 stock bool:IsInventoryEmpty(playerid) {
@@ -132,30 +139,22 @@ stock bool:IsInventorySlotUsed(playerid, index) {
     return IsContainerSlotUsed(gOwnerContainerID[playerid], index);
 }
 
-stock GetInventorySlotItem(playerid, index, &Item:itemid) {
+stock bool:GetInventorySlotItem(playerid, index, &Item:itemid) {
     if (!IsPlayerConnected(playerid)) {
-        return 1;
+        return false;
     }
 
-    new const
-        ret = GetContainerSlotItem(gOwnerContainerID[playerid], index, itemid)
-    ;
-
-    if (ret) {
-        return (ret + 1);
-    }
-
-    return 0;
+    return GetContainerSlotItem(gOwnerContainerID[playerid], index, itemid);
 }
 
-stock GetInventoryContainer(playerid, &Container:containerid) {
+stock bool:GetInventoryContainer(playerid, &Container:containerid) {
     if (!IsPlayerConnected(playerid)) {
-        return 1;
+        return false;
     }
 
     containerid = gOwnerContainerID[playerid];
 
-    return 0;
+    return true;
 }
 
 /**

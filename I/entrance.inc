@@ -76,27 +76,27 @@ new
 forward Entrance:CreateEntrance(Float:extX, Float:extY, Float:extZ, Float:extA, extWorld, extInterior, Float:intX, Float:intY, Float:intZ, Float:intA, intWorld, intInterior, KEY:buttonKey = ENTRANCE_DEFAULT_BUTTON_KEY, priority = ENTRANCE_DEFAULT_BUTTON_PRIORITY);
 forward bool:IsValidEntrance(Entrance:entranceid);
 
-forward GetEntranceExteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Float:z);
-forward GetEntranceExteriorFacingAngle(Entrance:entranceid, &Float:a);
+forward bool:GetEntranceExteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Float:z);
+forward bool:GetEntranceExteriorFacingAngle(Entrance:entranceid, &Float:a);
 forward GetEntranceExteriorVirtualWorld(Entrance:entranceid);
 forward GetEntranceExteriorInterior(Entrance:entranceid);
-forward GetEntranceExteriorButton(Entrance:entranceid, &Button:buttonid);
+forward bool:GetEntranceExteriorButton(Entrance:entranceid, &Button:buttonid);
 forward bool:HasButtonExteriorEntrance(Button:buttonid);
 forward bool:GetButtonExteriorEntrance(Button:buttonid, &Entrance:entranceid);
-forward SetPlayerExteriorEntrance(playerid, Entrance:entranceid, Float:offset = ENTRANCE_DEFAULT_FORWARD_OFFSET);
-forward GetPlayerExteriorEntrance(playerid, &Entrance:entranceid);
-forward GetPlayerExteriorButton(playerid, &Button:buttonid);
+forward bool:SetPlayerExteriorEntrance(playerid, Entrance:entranceid, Float:offset = ENTRANCE_DEFAULT_FORWARD_OFFSET);
+forward bool:GetPlayerExteriorEntrance(playerid, &Entrance:entranceid);
+forward bool:GetPlayerExteriorButton(playerid, &Button:buttonid);
 
-forward GetEntranceInteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Float:z);
-forward GetEntranceInteriorFacingAngle(Entrance:entranceid, &Float:a);
+forward bool:GetEntranceInteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Float:z);
+forward bool:GetEntranceInteriorFacingAngle(Entrance:entranceid, &Float:a);
 forward GetEntranceInteriorVirtualWorld(Entrance:entranceid);
 forward GetEntranceInteriorInterior(Entrance:entranceid);
-forward GetEntranceInteriorButton(Entrance:entranceid, &Button:buttonid);
+forward bool:GetEntranceInteriorButton(Entrance:entranceid, &Button:buttonid);
 forward bool:HasButtonInteriorEntrance(Button:buttonid);
 forward bool:GetButtonInteriorEntrance(Button:buttonid, &Entrance:entranceid);
-forward SetPlayerInteriorEntrance(playerid, Entrance:entranceid, Float:offset = ENTRANCE_DEFAULT_FORWARD_OFFSET);
-forward GetPlayerInteriorEntrance(playerid, &Entrance:entranceid);
-forward GetPlayerInteriorButton(playerid, &Button:buttonid);
+forward bool:SetPlayerInteriorEntrance(playerid, Entrance:entranceid, Float:offset = ENTRANCE_DEFAULT_FORWARD_OFFSET);
+forward bool:GetPlayerInteriorEntrance(playerid, &Entrance:entranceid);
+forward bool:GetPlayerInteriorButton(playerid, &Button:buttonid);
 
 /**
  * # Events
@@ -190,26 +190,26 @@ stock bool:IsValidEntrance(Entrance:entranceid) {
  * # Exterior
  */
 
-stock GetEntranceExteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Float:z) {
+stock bool:GetEntranceExteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Float:z) {
     if (!IsValidEntrance(entranceid)) {
-        return 1;
+        return false;
     }
 
     x = gEntranceData[entranceid][E_ENTRANCE_EXT_X];
     y = gEntranceData[entranceid][E_ENTRANCE_EXT_Y];
     z = gEntranceData[entranceid][E_ENTRANCE_EXT_Z];
 
-    return 0;
+    return true;
 }
 
-stock GetEntranceExteriorFacingAngle(Entrance:entranceid, &Float:a) {
+stock bool:GetEntranceExteriorFacingAngle(Entrance:entranceid, &Float:a) {
     if (!IsValidEntrance(entranceid)) {
-        return 1;
+        return false;
     }
 
     a = gEntranceData[entranceid][E_ENTRANCE_EXT_A];
 
-    return 0;
+    return true;
 }
 
 stock GetEntranceExteriorVirtualWorld(Entrance:entranceid) {
@@ -228,14 +228,14 @@ stock GetEntranceExteriorInterior(Entrance:entranceid) {
     return gEntranceData[entranceid][E_ENTRANCE_EXT_INTERIOR_ID];
 }
 
-stock GetEntranceExteriorButton(Entrance:entranceid, &Button:buttonid) {
+stock bool:GetEntranceExteriorButton(Entrance:entranceid, &Button:buttonid) {
     if (!IsValidEntrance(entranceid)) {
-        return 1;
+        return false;
     }
     
     buttonid = gEntranceData[entranceid][E_ENTRANCE_EXT_BUTTON_ID];
 
-    return 0;
+    return true;
 }
 
 stock bool:HasButtonExteriorEntrance(Button:buttonid) {
@@ -246,9 +246,9 @@ stock bool:GetButtonExteriorEntrance(Button:buttonid, &Entrance:entranceid) {
     return GetButtonExtraData(buttonid, BTN_ATTRIBUTE_EXT_ENTRANCE_ID, _:entranceid);
 }
 
-stock SetPlayerExteriorEntrance(playerid, Entrance:entranceid, Float:offset = ENTRANCE_DEFAULT_FORWARD_OFFSET) {
+stock bool:SetPlayerExteriorEntrance(playerid, Entrance:entranceid, Float:offset = ENTRANCE_DEFAULT_FORWARD_OFFSET) {
     if (!IsValidEntrance(entranceid)) {
-        return 1;
+        return false;
     }
 
     SetPlayerPos(playerid,
@@ -261,16 +261,16 @@ stock SetPlayerExteriorEntrance(playerid, Entrance:entranceid, Float:offset = EN
     SetPlayerFacingAngle(playerid, gEntranceData[entranceid][E_ENTRANCE_EXT_A]);
     SetCameraBehindPlayer(playerid);
 
-    return 0;
+    return true;
 }
 
-stock GetPlayerExteriorEntrance(playerid, &Entrance:entranceid) {
+stock bool:GetPlayerExteriorEntrance(playerid, &Entrance:entranceid) {
     if (!IsPlayerConnected(playerid)) {
-        return 1;
+        return false;
     }
 
     if (!IsPlayerInAnyButton(playerid)) {
-        return 2;
+        return false;
     }
 
     new
@@ -278,60 +278,60 @@ stock GetPlayerExteriorEntrance(playerid, &Entrance:entranceid) {
     ;
 
     if (GetPlayerButton(playerid, buttonid)) {
-        return 3;
+        return false;
     }
 
     if (!GetButtonExteriorEntrance(buttonid, entranceid)) {
-        return 4;
+        return false;
     }
 
-    return 0;
+    return true;
 }
 
-stock GetPlayerExteriorButton(playerid, &Button:buttonid) {
+stock bool:GetPlayerExteriorButton(playerid, &Button:buttonid) {
     if (!IsPlayerConnected(playerid)) {
-        return 1;
+        return false;
     }
 
     if (!IsPlayerInAnyButton(playerid)) {
-        return 2;
+        return false;
     }
 
     if (GetPlayerButton(playerid, buttonid)) {
-        return 3;
+        return false;
     }
 
     if (!HasButtonExteriorEntrance(buttonid)) {
-        return 4;
+        return false;
     }
 
-    return 0;
+    return true;
 }
 
 /**
  * # Interior
  */
 
-stock GetEntranceInteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Float:z) {
+stock bool:GetEntranceInteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Float:z) {
     if (!IsValidEntrance(entranceid)) {
-        return 1;
+        return false;
     }
 
     x = gEntranceData[entranceid][E_ENTRANCE_INT_X];
     y = gEntranceData[entranceid][E_ENTRANCE_INT_Y];
     z = gEntranceData[entranceid][E_ENTRANCE_INT_Z];
 
-    return 0;
+    return true;
 }
 
-stock GetEntranceInteriorFacingAngle(Entrance:entranceid, &Float:a) {
+stock bool:GetEntranceInteriorFacingAngle(Entrance:entranceid, &Float:a) {
     if (!IsValidEntrance(entranceid)) {
-        return 1;
+        return false;
     }
 
     a = gEntranceData[entranceid][E_ENTRANCE_INT_A];
 
-    return 0;
+    return true;
 }
 
 stock GetEntranceInteriorVirtualWorld(Entrance:entranceid) {
@@ -350,14 +350,14 @@ stock GetEntranceInteriorInterior(Entrance:entranceid) {
     return gEntranceData[entranceid][E_ENTRANCE_INT_INTERIOR_ID];
 }
 
-stock GetEntranceInteriorButton(Entrance:entranceid, &Button:buttonid) {
+stock bool:GetEntranceInteriorButton(Entrance:entranceid, &Button:buttonid) {
     if (!IsValidEntrance(entranceid)) {
-        return 1;
+        return false;
     }
 
     buttonid = gEntranceData[entranceid][E_ENTRANCE_INT_BUTTON_ID];
 
-    return 0;
+    return true;
 }
 
 stock bool:HasButtonInteriorEntrance(Button:buttonid) {
@@ -368,9 +368,9 @@ stock bool:GetButtonInteriorEntrance(Button:buttonid, &Entrance:entranceid) {
     return GetButtonExtraData(buttonid, BTN_ATTRIBUTE_INT_ENTRANCE_ID, _:entranceid);
 }
 
-stock SetPlayerInteriorEntrance(playerid, Entrance:entranceid, Float:offset = ENTRANCE_DEFAULT_FORWARD_OFFSET) {
+stock bool:SetPlayerInteriorEntrance(playerid, Entrance:entranceid, Float:offset = ENTRANCE_DEFAULT_FORWARD_OFFSET) {
     if (!IsValidEntrance(entranceid)) {
-        return 1;
+        return false;
     }
 
     SetPlayerPos(playerid,
@@ -383,16 +383,16 @@ stock SetPlayerInteriorEntrance(playerid, Entrance:entranceid, Float:offset = EN
     SetPlayerFacingAngle(playerid, gEntranceData[entranceid][E_ENTRANCE_INT_A]);
     SetCameraBehindPlayer(playerid);
 
-    return 0;
+    return true;
 }
 
-stock GetPlayerInteriorEntrance(playerid, &Entrance:entranceid) {
+stock bool:GetPlayerInteriorEntrance(playerid, &Entrance:entranceid) {
     if (!IsPlayerConnected(playerid)) {
-        return 1;
+        return false;
     }
 
     if (!IsPlayerInAnyButton(playerid)) {
-        return 2;
+        return false;
     }
 
     new
@@ -400,34 +400,34 @@ stock GetPlayerInteriorEntrance(playerid, &Entrance:entranceid) {
     ;
 
     if (GetPlayerButton(playerid, buttonid)) {
-        return 3;
+        return false;
     }
 
     if (!GetButtonInteriorEntrance(buttonid, entranceid)) {
-        return 4;
+        return false;
     }
 
-    return 0;
+    return true;
 }
 
-stock GetPlayerInteriorButton(playerid, &Button:buttonid) {
+stock bool:GetPlayerInteriorButton(playerid, &Button:buttonid) {
     if (!IsPlayerConnected(playerid)) {
-        return 1;
+        return false;
     }
 
     if (!IsPlayerInAnyButton(playerid)) {
-        return 2;
+        return false;
     }
 
     if (GetPlayerButton(playerid, buttonid)) {
-        return 3;
+        return false;
     }
 
     if (!HasButtonInteriorEntrance(buttonid)) {
-        return 4;
+        return false;
     }
 
-    return 0;
+    return true;
 }
 
 /**
