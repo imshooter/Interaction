@@ -25,8 +25,8 @@
     #define MAX_PLAYER_DYN_AREAS (256)
 #endif
 
-#if !defined MAX_PLAYER_BUTTONS
-    #define MAX_PLAYER_BUTTONS (8)
+#if !defined MAX_AREA_BUTTONS
+    #define MAX_AREA_BUTTONS (8)
 #endif
 
 #if !defined BUTTON_DEFAULT_KEY
@@ -77,28 +77,29 @@ new
  * # Functions
  */
 
-forward Button:CreateButton(Float:x, Float:y, Float:z, KEY:buttonKey = BUTTON_DEFAULT_KEY, Float:size = 1.0, worldid = -1, interiorid = -1, priority = 0, bool:allowStack = false);
-forward bool:DestroyButton(Button:buttonid);
+forward Button:CreateButton(Float:x, Float:y, Float:z, KEY:buttonKey = BUTTON_DEFAULT_KEY, Float:size = 1.0, worldid = -1, interiorid = -1, priority = 0);
+forward DestroyButton(Button:buttonid);
 forward bool:IsValidButton(Button:buttonid);
-forward bool:SetButtonPos(Button:buttonid, Float:x, Float:y, Float:z, bool:allowStack = false);
-forward bool:GetButtonPos(Button:buttonid, &Float:x, &Float:y, &Float:z);
-forward bool:SetButtonSize(Button:buttonid, Float:size);
-forward bool:GetButtonSize(Button:buttonid, &Float:size);
-forward bool:SetButtonVirtualWorld(Button:buttonid, worldid);
+forward SetButtonPos(Button:buttonid, Float:x, Float:y, Float:z);
+forward GetButtonPos(Button:buttonid, &Float:x, &Float:y, &Float:z);
+forward SetButtonPriority(Button:buttonid, priority);
+forward GetButtonPriority(Button:buttonid);
+forward SetButtonSize(Button:buttonid, Float:size);
+forward GetButtonSize(Button:buttonid, &Float:size);
+forward SetButtonVirtualWorld(Button:buttonid, worldid);
 forward GetButtonVirtualWorld(Button:buttonid);
-forward bool:SetButtonInterior(Button:buttonid, interiorid);
+forward SetButtonInterior(Button:buttonid, interiorid);
 forward GetButtonInterior(Button:buttonid);
-forward bool:SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...);
-forward bool:GetButtonPopupText(Button:buttonid, output[], len = sizeof (output));
-forward bool:SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...);
-forward bool:DestroyButtonTextLabel(Button:buttonid);
-forward bool:UpdateButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...);
-forward bool:GetButtonDynamicArea(Button:buttonid, &STREAMER_TAG_AREA:areaid);
-forward bool:GetButtonDynamic3DTextLabel(Button:buttonid, &STREAMER_TAG_3D_TEXT_LABEL:textid);
-forward bool:GetClosestButtonToPoint(Float:x, Float:y, Float:z, Float:size = 1.0, worldid = -1, &Button:buttonid = INVALID_BUTTON_ID);
+forward SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...);
+forward GetButtonPopupText(Button:buttonid, output[], len = sizeof (output));
+forward SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...);
+forward UpdateButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...);
+forward DestroyButtonTextLabel(Button:buttonid);
+forward GetButtonDynamicArea(Button:buttonid, &STREAMER_TAG_AREA:areaid);
+forward GetButtonDynamic3DTextLabel(Button:buttonid, &STREAMER_TAG_3D_TEXT_LABEL:textid);
 forward bool:IsPlayerInAnyButton(playerid);
-forward bool:GetPlayerButton(playerid, &Button:buttonid);
-forward bool:GetPlayerNearbyButtons(playerid, Button:buttons[MAX_PLAYER_BUTTONS] = { INVALID_BUTTON_ID, ... }, &count = 0);
+forward GetPlayerButton(playerid, &Button:buttonid);
+forward GetPlayerNearbyButtons(playerid, Button:buttons[MAX_AREA_BUTTONS] = { INVALID_BUTTON_ID, ... }, &count = 0);
 
 /**
  * # Events
@@ -166,13 +167,7 @@ forward OnPlayerLeaveButtonArea(playerid, Button:buttonid);
  * # API
  */
 
-stock Button:CreateButton(Float:x, Float:y, Float:z, KEY:buttonKey = BUTTON_DEFAULT_KEY, Float:size = 1.0, worldid = -1, interiorid = -1, priority = 0, bool:allowStack = false) {
-    if (!allowStack) {
-        if (GetClosestButtonToPoint(x, y, z, size, worldid)) {
-            return INVALID_BUTTON_ID;
-        }
-    }
-
+stock Button:CreateButton(Float:x, Float:y, Float:z, KEY:buttonKey = BUTTON_DEFAULT_KEY, Float:size = 1.0, worldid = -1, interiorid = -1, priority = 0) {
     new const
         Button:buttonid = Button:Iter_Alloc(Button)
     ;
@@ -208,9 +203,9 @@ stock Button:CreateButton(Float:x, Float:y, Float:z, KEY:buttonKey = BUTTON_DEFA
     return buttonid;
 }
 
-stock bool:DestroyButton(Button:buttonid) {
+stock DestroyButton(Button:buttonid) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     DestroyDynamicArea(gButtonData[buttonid][E_BUTTON_AREA_ID]);
@@ -226,7 +221,7 @@ stock bool:DestroyButton(Button:buttonid) {
 
     CallLocalFunction("OnButtonDestroy", "i", _:buttonid);
 
-    return true;
+    return 0;
 }
 
 stock bool:IsValidButton(Button:buttonid) {
@@ -237,15 +232,9 @@ stock bool:IsValidButton(Button:buttonid) {
     return Iter_Contains(Button, buttonid);
 }
 
-stock bool:SetButtonPos(Button:buttonid, Float:x, Float:y, Float:z, bool:allowStack = false) {
+stock SetButtonPos(Button:buttonid, Float:x, Float:y, Float:z) {
     if (!IsValidButton(buttonid)) {
-        return false;
-    }
-
-    if (!allowStack) {
-        if (GetClosestButtonToPoint(x, y, z, gButtonData[buttonid][E_BUTTON_SIZE], gButtonData[buttonid][E_BUTTON_WORLD_ID])) {
-            return false;
-        }
+        return 1;
     }
 
     Streamer_SetFloatData(STREAMER_TYPE_AREA, gButtonData[buttonid][E_BUTTON_AREA_ID], E_STREAMER_X, x);
@@ -262,29 +251,29 @@ stock bool:SetButtonPos(Button:buttonid, Float:x, Float:y, Float:z, bool:allowSt
     gButtonData[buttonid][E_BUTTON_Y] = y;
     gButtonData[buttonid][E_BUTTON_Z] = z;
 
-    return true;
+    return 0;
 }
 
-stock bool:GetButtonPos(Button:buttonid, &Float:x, &Float:y, &Float:z) {
+stock GetButtonPos(Button:buttonid, &Float:x, &Float:y, &Float:z) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     x = gButtonData[buttonid][E_BUTTON_X];
     y = gButtonData[buttonid][E_BUTTON_Y];
     z = gButtonData[buttonid][E_BUTTON_Z];
 
-    return true;
+    return 0;
 }
 
-stock bool:SetButtonPriority(Button:buttonid, priority) {
+stock SetButtonPriority(Button:buttonid, priority) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     gButtonData[buttonid][E_BUTTON_PRIORITY] = priority;
 
-    return true;
+    return 0;
 }
 
 stock GetButtonPriority(Button:buttonid) {
@@ -295,31 +284,31 @@ stock GetButtonPriority(Button:buttonid) {
     return gButtonData[buttonid][E_BUTTON_PRIORITY];
 }
 
-stock bool:SetButtonSize(Button:buttonid, Float:size) {
+stock SetButtonSize(Button:buttonid, Float:size) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     Streamer_SetFloatData(STREAMER_TYPE_AREA, gButtonData[buttonid][E_BUTTON_AREA_ID], E_STREAMER_SIZE, size);
         
     gButtonData[buttonid][E_BUTTON_SIZE] = size;
 
-    return true;
+    return 0;
 }
 
-stock bool:GetButtonSize(Button:buttonid, &Float:size) {
+stock GetButtonSize(Button:buttonid, &Float:size) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
         
     size = gButtonData[buttonid][E_BUTTON_SIZE];
 
-    return true;
+    return 0;
 }
 
-stock bool:SetButtonVirtualWorld(Button:buttonid, worldid) {
+stock SetButtonVirtualWorld(Button:buttonid, worldid) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     if (gButtonData[buttonid][E_BUTTON_WORLD_ID] != worldid) {
@@ -332,7 +321,7 @@ stock bool:SetButtonVirtualWorld(Button:buttonid, worldid) {
         gButtonData[buttonid][E_BUTTON_WORLD_ID] = worldid;
     }
 
-    return true;
+    return 0;
 }
 
 stock GetButtonVirtualWorld(Button:buttonid) {
@@ -343,9 +332,9 @@ stock GetButtonVirtualWorld(Button:buttonid) {
     return gButtonData[buttonid][E_BUTTON_WORLD_ID];
 }
 
-stock bool:SetButtonInterior(Button:buttonid, interiorid) {
+stock SetButtonInterior(Button:buttonid, interiorid) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     if (gButtonData[buttonid][E_BUTTON_INTERIOR_ID] != interiorid) {
@@ -358,7 +347,7 @@ stock bool:SetButtonInterior(Button:buttonid, interiorid) {
         gButtonData[buttonid][E_BUTTON_INTERIOR_ID] = interiorid;
     }
 
-    return true;
+    return 0;
 }
 
 stock GetButtonInterior(Button:buttonid) {
@@ -369,9 +358,9 @@ stock GetButtonInterior(Button:buttonid) {
     return gButtonData[buttonid][E_BUTTON_INTERIOR_ID];
 }
 
-stock bool:SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...) {
+stock SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     new
@@ -387,22 +376,22 @@ stock bool:SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...)
 
     strpack(gButtonData[buttonid][E_BUTTON_TEXT], buffer);
 
-    return true;
+    return 0;
 }
 
-stock bool:GetButtonPopupText(Button:buttonid, output[], len = sizeof (output)) {
+stock GetButtonPopupText(Button:buttonid, output[], len = sizeof (output)) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     strunpack(output, gButtonData[buttonid][E_BUTTON_TEXT], len);
 
-    return true;
+    return 0;
 }
 
-stock bool:SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...) {
+stock SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     if (IsValidDynamic3DTextLabel(gButtonData[buttonid][E_BUTTON_TEXT3D_ID])) {
@@ -436,16 +425,16 @@ stock bool:SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFF
         distance
     );
 
-    return true;
+    return 0;
 }
 
-stock bool:UpdateButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...) {
+stock UpdateButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     if (!IsValidDynamic3DTextLabel(gButtonData[buttonid][E_BUTTON_TEXT3D_ID])) {
-        return false;
+        return 2;
     }
 
     new
@@ -461,65 +450,46 @@ stock bool:UpdateButtonTextLabel(Button:buttonid, const format[], colour = 0xFFF
 
     UpdateDynamic3DTextLabelText(gButtonData[buttonid][E_BUTTON_TEXT3D_ID], colour, buffer);
 
-    return true;
+    return 0;
 }
 
-stock bool:DestroyButtonTextLabel(Button:buttonid) {
+stock DestroyButtonTextLabel(Button:buttonid) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     if (!IsValidDynamic3DTextLabel(gButtonData[buttonid][E_BUTTON_TEXT3D_ID])) {
-        return false;
+        return 2;
     }
 
     DestroyDynamic3DTextLabel(gButtonData[buttonid][E_BUTTON_TEXT3D_ID]);
     gButtonData[buttonid][E_BUTTON_TEXT3D_ID] = STREAMER_TAG_3D_TEXT_LABEL:INVALID_3DTEXT_ID;
 
-    return true;
+    return 0;
 }
 
-stock bool:GetButtonDynamicArea(Button:buttonid, &STREAMER_TAG_AREA:areaid) {
+stock GetButtonDynamicArea(Button:buttonid, &STREAMER_TAG_AREA:areaid) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     areaid = gButtonData[buttonid][E_BUTTON_AREA_ID];
 
-    return true;
+    return 0;
 }
 
-stock bool:GetButtonDynamic3DTextLabel(Button:buttonid, &STREAMER_TAG_3D_TEXT_LABEL:textid) {
+stock GetButtonDynamic3DTextLabel(Button:buttonid, &STREAMER_TAG_3D_TEXT_LABEL:textid) {
     if (!IsValidButton(buttonid)) {
-        return false;
+        return 1;
     }
 
     if (!IsValidDynamic3DTextLabel(gButtonData[buttonid][E_BUTTON_TEXT3D_ID])) {
-        return false;
+        return 2;
     }
 
     textid = gButtonData[buttonid][E_BUTTON_TEXT3D_ID];
 
-    return true;
-}
-
-stock bool:GetClosestButtonToPoint(Float:x, Float:y, Float:z, Float:size = 1.0, worldid = -1, &Button:buttonid = INVALID_BUTTON_ID) {
-    new
-        STREAMER_TAG_AREA:areas[MAX_PLAYER_DYN_AREAS],
-        data[2]
-    ;
-
-    for (new i, areaCount = Streamer_GetNearbyItems(x, y, z, STREAMER_TYPE_AREA, areas, sizeof (areas), size, worldid); i != areaCount; ++i) {
-        Streamer_GetArrayData(STREAMER_TYPE_AREA, areas[i], E_STREAMER_EXTRA_ID, data);
-
-        if (data[0] == BUTTON_STREAMER_IDENTIFIER) {
-            buttonid = Button:data[1];
-
-            return true;
-        }
-    }
-
-    return false;
+    return 0;
 }
 
 stock bool:IsPlayerInAnyButton(playerid) {
@@ -530,13 +500,13 @@ stock bool:IsPlayerInAnyButton(playerid) {
     return (gInButtonCount{playerid} != 0);
 }
 
-stock bool:GetPlayerButton(playerid, &Button:buttonid) {
+stock GetPlayerButton(playerid, &Button:buttonid) {
     if (!IsPlayerConnected(playerid)) {
-        return false;
+        return 1;
     }
 
     if (gInButtonCount{playerid} == 0) {
-        return false;
+        return 2;
     }
 
     new
@@ -544,7 +514,7 @@ stock bool:GetPlayerButton(playerid, &Button:buttonid) {
         data[2],
         Button:b,
         p,
-        aux = -1
+        last = -1
     ;
 
     for (new i, size = GetPlayerDynamicAreas(playerid, areas); i != size; ++i) {
@@ -554,23 +524,23 @@ stock bool:GetPlayerButton(playerid, &Button:buttonid) {
             b = Button:data[1];
             p = gButtonData[b][E_BUTTON_PRIORITY];
 
-            if (p > aux) {
-                aux = p;
+            if (p > last) {
+                last = p;
                 buttonid = b;
             }
         }
     }
 
-    return (aux >= 0);
+    return (last == -1) ? 3 : 0;
 }
 
-stock bool:GetPlayerNearbyButtons(playerid, Button:buttons[MAX_PLAYER_BUTTONS] = { INVALID_BUTTON_ID, ... }, &count = 0) {
+stock GetPlayerNearbyButtons(playerid, Button:buttons[MAX_AREA_BUTTONS] = { INVALID_BUTTON_ID, ... }, &count = 0) {
     if (!IsPlayerConnected(playerid)) {
-        return false;
+        return 1;
     }
 
     if (gInButtonCount{playerid} == 0) {
-        return false;
+        return 2;
     }
 
     new
@@ -578,12 +548,12 @@ stock bool:GetPlayerNearbyButtons(playerid, Button:buttons[MAX_PLAYER_BUTTONS] =
         data[2],
         Button:b,
         p,
-        priorities[MAX_PLAYER_BUTTONS]
+        priorities[MAX_AREA_BUTTONS]
     ;
 
     count = 0;
 
-    for (new i, x, size = GetPlayerDynamicAreas(playerid, areas); i != size && count != MAX_PLAYER_BUTTONS; ++i) {
+    for (new i, x, size = GetPlayerDynamicAreas(playerid, areas); i != size && count != MAX_AREA_BUTTONS; ++i) {
         Streamer_GetArrayData(STREAMER_TYPE_AREA, areas[i], E_STREAMER_EXTRA_ID, data);
 
         if (data[0] == BUTTON_STREAMER_IDENTIFIER) {
@@ -594,13 +564,13 @@ stock bool:GetPlayerNearbyButtons(playerid, Button:buttons[MAX_PLAYER_BUTTONS] =
                 buttons[x] = buttons[x - 1];
                 priorities[x] = priorities[x - 1];
             }
-            
+
             buttons[x] = b;
             priorities[x] = p;
         }
     }
 
-    return (count > 0);
+    return (count == 0) ? 3 : 0;
 }
 
 /**
@@ -616,7 +586,7 @@ hook OnPlayerKeyStateChange(playerid, KEY:newkeys, KEY:oldkeys) {
         Button:buttonid
     ;
 
-    if (!GetPlayerButton(playerid, buttonid)) {
+    if (GetPlayerButton(playerid, buttonid)) {
         return 1;
     }
 
@@ -638,7 +608,7 @@ hook OnPlayerKeyStateChange(playerid, KEY:newkeys, KEY:oldkeys) {
 }
 
 hook OnPlayerEnterDynamicArea(playerid, STREAMER_TAG_AREA:areaid) {
-    if (GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && gInButtonCount{playerid} != (MAX_PLAYER_BUTTONS - 1)) {
+    if (GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && gInButtonCount{playerid} != (MAX_AREA_BUTTONS - 1)) {
         new
             data[2]
         ;
