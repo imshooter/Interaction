@@ -55,31 +55,62 @@ new
 
 forward Container:CreateContainer(const name[], size, bool:ordered = true);
 forward bool:IsValidContainer(Container:containerid);
-forward DestroyContainer(Container:containerid, bool:clear = true);
-forward SetContainerName(Container:containerid, const name[]);
-forward GetContainerName(Container:containerid, output[], len = sizeof (output));
-forward SetContainerSize(Container:containerid, size);
+forward bool:DestroyContainer(Container:containerid, bool:clear = true);
+forward bool:SetContainerName(Container:containerid, const name[]);
+forward bool:GetContainerName(Container:containerid, output[], len = sizeof (output));
+forward bool:SetContainerSize(Container:containerid, size);
 forward GetContainerSize(Container:containerid);
-forward SetContainerOrdered(Container:containerid, bool:ordered);
+forward bool:SetContainerOrdered(Container:containerid, bool:ordered);
 forward bool:IsContainerOrdered(Container:containerid);
 forward GetContainerItemCount(Container:containerid);
-forward AddItemToContainer(Container:containerid, Item:itemid, &index = -1, playerid = INVALID_PLAYER_ID, bool:call = true);
-forward RemoveItemFromContainer(Container:containerid, index, &Item:itemid = INVALID_ITEM_ID, playerid = INVALID_PLAYER_ID, bool:call = true);
-forward TransferContainerItem(Container:containerid1, Container:containerid2, index, &Item:itemid = INVALID_ITEM_ID);
+forward bool:AddItemToContainer(Container:containerid, Item:itemid, &index = -1, playerid = INVALID_PLAYER_ID, bool:call = true);
+forward bool:RemoveItemFromContainer(Container:containerid, index, &Item:itemid = INVALID_ITEM_ID, playerid = INVALID_PLAYER_ID, bool:call = true);
+forward bool:TransferContainerItem(Container:containerid1, Container:containerid2, index, &Item:itemid = INVALID_ITEM_ID);
 forward bool:IsContainerEmpty(Container:containerid);
 forward bool:IsContainerFull(Container:containerid);
 forward bool:IsContainerSlotUsed(Container:containerid, index);
-forward GetContainerSlotItem(Container:containerid, index, &Item:itemid);
-forward GetItemContainerData(Item:itemid, &Container:containerid = INVALID_CONTAINER_ID, &index = -1);
+forward bool:GetContainerSlotItem(Container:containerid, index, &Item:itemid);
+forward bool:GetItemContainerData(Item:itemid, &Container:containerid = INVALID_CONTAINER_ID, &index = -1);
 
 /**
  * # Events
  */
 
 forward OnContainerCreate(Container:containerid);
+
+/**
+ * # OnContainerCreate
+ *
+ * # Returns
+ *   - This callback does not handle returns.
+ */
+
 forward OnContainerDestroy(Container:containerid);
+
+/**
+ * # OnContainerDestroy
+ *
+ * # Returns
+ *   - This callback does not handle returns.
+ */
+
 forward OnItemAddToContainer(Container:containerid, Item:itemid, index, playerid);
+
+/**
+ * # OnItemAddToContainer
+ *
+ * # Returns
+ *   - This callback does not handle returns.
+ */
+
 forward OnItemRemoveFromContainer(Container:containerid, Item:itemid, index, playerid);
+
+/**
+ * # OnItemRemoveFromContainer
+ *
+ * # Returns
+ *   - This callback does not handle returns.
+ */
 
 /**
  * # Iter
@@ -132,9 +163,9 @@ stock bool:IsValidContainer(Container:containerid) {
     return Iter_Contains(Container, containerid);
 }
 
-stock DestroyContainer(Container:containerid, bool:clear = true) {
+stock bool:DestroyContainer(Container:containerid, bool:clear = true) {
     if (!IsValidContainer(containerid)) {
-        return 1;
+        return false;
     }
 
     if (clear) {
@@ -156,37 +187,37 @@ stock DestroyContainer(Container:containerid, bool:clear = true) {
 
     CallLocalFunction("OnContainerDestroy", "i", _:containerid);
 
-    return 0;
+    return true;
 }
 
-stock SetContainerName(Container:containerid, const name[]) {
+stock bool:SetContainerName(Container:containerid, const name[]) {
     if (!IsValidContainer(containerid)) {
-        return 1;
+        return false;
     }
 
     strcopy(gContainerData[containerid][E_CONTAINER_NAME], name);
 
-    return 0;
+    return true;
 }
 
-stock GetContainerName(Container:containerid, output[], len = sizeof (output)) {
+stock bool:GetContainerName(Container:containerid, output[], len = sizeof (output)) {
     if (!IsValidContainer(containerid)) {
-        return 1;
+        return false;
     }
 
     strcopy(output, gContainerData[containerid][E_CONTAINER_NAME], len);
 
-    return 0;
+    return true;
 }
 
-stock SetContainerSize(Container:containerid, size) {
+stock bool:SetContainerSize(Container:containerid, size) {
     if (!IsValidContainer(containerid)) {
-        return 1;
+        return false;
     }
 
     pool_resize(gContainerData[containerid][E_CONTAINER_POOL], size);
 
-    return 0;
+    return true;
 }
 
 stock GetContainerSize(Container:containerid) {
@@ -197,14 +228,14 @@ stock GetContainerSize(Container:containerid) {
     return pool_capacity(gContainerData[containerid][E_CONTAINER_POOL]);
 }
 
-stock SetContainerOrdered(Container:containerid, bool:ordered) {
+stock bool:SetContainerOrdered(Container:containerid, bool:ordered) {
     if (!IsValidContainer(containerid)) {
-        return 1;
+        return false;
     }
 
     pool_set_ordered(gContainerData[containerid][E_CONTAINER_POOL], ordered);
 
-    return 0;
+    return true;
 }
 
 stock bool:IsContainerOrdered(Container:containerid) {
@@ -223,21 +254,21 @@ stock GetContainerItemCount(Container:containerid) {
     return pool_size(gContainerData[containerid][E_CONTAINER_POOL]);
 }
 
-stock AddItemToContainer(Container:containerid, Item:itemid, &index = -1, playerid = INVALID_PLAYER_ID, bool:call = true) {
+stock bool:AddItemToContainer(Container:containerid, Item:itemid, &index = -1, playerid = INVALID_PLAYER_ID, bool:call = true) {
     if (!IsValidContainer(containerid)) {
-        return 1;
+        return false;
     }
 
     if (!IsValidItem(itemid)) {
-        return 2;
+        return false;
     }
 
     if (gItemContainerID[itemid] != INVALID_CONTAINER_ID) {
-        return 3;
+        return false;
     }
 
     if (pool_size(gContainerData[containerid][E_CONTAINER_POOL]) >= pool_capacity(gContainerData[containerid][E_CONTAINER_POOL])) {
-        return 4;
+        return false;
     }
 
     gItemContainerID[itemid] = containerid;
@@ -247,16 +278,16 @@ stock AddItemToContainer(Container:containerid, Item:itemid, &index = -1, player
         CallLocalFunction("OnItemAddToContainer", "iiii", _:containerid, _:itemid, index, playerid);
     }
 
-    return 0;
+    return true;
 }
 
-stock RemoveItemFromContainer(Container:containerid, index, &Item:itemid = INVALID_ITEM_ID, playerid = INVALID_PLAYER_ID, bool:call = true) {
+stock bool:RemoveItemFromContainer(Container:containerid, index, &Item:itemid = INVALID_ITEM_ID, playerid = INVALID_PLAYER_ID, bool:call = true) {
     if (!IsValidContainer(containerid)) {
-        return 1;
+        return false;
     }
 
     if (!GetContainerSlotItem(containerid, index, itemid)) {
-        return 2;
+        return false;
     }
 
     gItemContainerID[itemid] = INVALID_CONTAINER_ID;
@@ -268,30 +299,30 @@ stock RemoveItemFromContainer(Container:containerid, index, &Item:itemid = INVAL
         CallLocalFunction("OnItemRemoveFromContainer", "iiii", _:containerid, _:itemid, index, playerid);
     }
 
-    return 0;
+    return true;
 }
 
-stock TransferContainerItem(Container:containerid1, Container:containerid2, index, &Item:itemid = INVALID_ITEM_ID) {
+stock bool:TransferContainerItem(Container:containerid1, Container:containerid2, index, &Item:itemid = INVALID_ITEM_ID) {
     if (!IsValidContainer(containerid1)) {
-        return 1;
+        return false;
     }
 
     if (!IsValidContainer(containerid2)) {
-        return 2;
+        return false;
     }
 
     if (IsContainerSlotUsed(containerid1, index)) {
-        return 3;
+        return false;
     }
 
     if (IsContainerSlotUsed(containerid2, index)) {
-        return 4;
+        return false;
     }
 
     RemoveItemFromContainer(containerid1, index, itemid);
     AddItemToContainer(containerid2, itemid);
 
-    return 0;
+    return true;
 }
 
 stock bool:IsContainerEmpty(Container:containerid) {
@@ -318,29 +349,29 @@ stock bool:IsContainerSlotUsed(Container:containerid, index) {
     return pool_has(gContainerData[containerid][E_CONTAINER_POOL], index);
 }
 
-stock GetContainerSlotItem(Container:containerid, index, &Item:itemid) {
+stock bool:GetContainerSlotItem(Container:containerid, index, &Item:itemid) {
     if (!IsValidContainer(containerid)) {
-        return 1;
+        return false;
     }
 
     if (!pool_has(gContainerData[containerid][E_CONTAINER_POOL], index)) {
-        return 2;
+        return false;
     }
 
     pool_get_safe(gContainerData[containerid][E_CONTAINER_POOL], index, _:itemid);
 
-    return 0;
+    return true;
 }
 
-stock GetItemContainerData(Item:itemid, &Container:containerid = INVALID_CONTAINER_ID, &index = -1) {
+stock bool:GetItemContainerData(Item:itemid, &Container:containerid = INVALID_CONTAINER_ID, &index = -1) {
     if (!IsValidItem(itemid)) {
-        return 1;
+        return false;
     }
 
     containerid = gItemContainerID[itemid];
     index = gItemContainerSlotID[itemid];
 
-    return 0;
+    return true;
 }
 
 /**
