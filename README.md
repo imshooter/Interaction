@@ -1,201 +1,41 @@
-# Functions
+# Interaction Archived
+This project implements a set of frameworks to create a more immersive experience in SA-MP/open.mp servers by replacing spinning pickups with physical buttons and providing an interactive interface for items, inventories, and containers.
 
-### Button
+# **Button**
+A simple framework using dynamic areas and key checks to simulate physical buttons. This is ideal for interactions without commands, such as entrances, or other interactions in the world.
 
-> * **CreateButton**`(Float:x, Float:y, Float:z, KEY:buttonKey = BUTTON_DEFAULT_KEY, Float:size = 1.0, worldid = -1, interiorid = -1, priority = 0, bool:allowStack = false)`
-> * **DestroyButton**`(Button:buttonid)`
-> * **IsValidButton**`(Button:buttonid)`
-> * **SetButtonPos**`(Button:buttonid, Float:x, Float:y, Float:z, bool:allowStack = false)`
-> * **GetButtonPos**`(Button:buttonid, &Float:x, &Float:y, &Float:z)`
-> * **SetButtonSize**`(Button:buttonid, Float:size)`
-> * **GetButtonSize**`(Button:buttonid, &Float:size)`
-> * **SetButtonVirtualWorld**`(Button:buttonid, worldid)`
-> * **GetButtonVirtualWorld**`(Button:buttonid)`
-> * **SetButtonInterior**`(Button:buttonid, interiorid)`
-> * **GetButtonInterior**`(Button:buttonid)`
-> * **SetButtonPopupText**`(Button:buttonid, const format[], OPEN_MP_TAGS:...)`
-> * **GetButtonPopupText**`(Button:buttonid, output[], len = sizeof (output))`
-> * **SetButtonTextLabel**`(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...)`
-> * **DestroyButtonTextLabel**`(Button:buttonid)`
-> * **UpdateButtonTextLabel**`(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...)`
-> * **GetButtonDynamicArea**`(Button:buttonid, &STREAMER_TAG_AREA:areaid)`
-> * **GetButtonDynamic3DTextLabel**`(Button:buttonid, &STREAMER_TAG_3D_TEXT_LABEL:textid)`
-> * **GetClosestButtonToPoint**`(Float:x, Float:y, Float:z, Float:size = 1.0, worldid = -1, &Button:buttonid = INVALID_BUTTON_ID)`
-> * **IsPlayerInAnyButton**`(playerid)`
-> * **GetPlayerButton**`(playerid, &Button:buttonid)`
-> * **GetPlayerNearbyButtons**`(playerid, Button:buttons[MAX_PLAYER_BUTTONS] = { INVALID_BUTTON_ID, ... }, &count = 0)`
+*    Buttons can be placed in the world and require the player to press a specific key.
+*    Supports dynamic text to show information when near the button.
 
-### Item
+# **Item**
+A flexible script for handling items in the game world. Items can be picked up or dropped, and can be attached to the player character (Read the callbacks documentation at `item.inc`). This script replaces standard pickups with more customizable and interactive items.
 
-> * **BuildItem**`(const name[], modelid, Float:buttonOffsetZ = ITEM_FLOOR_OFFSET)`
-> * **IsValidItemBuild**`(ItemBuild:buildid)`
-> * **GetItemBuildName**`(ItemBuild:buildid, output[], len = sizeof (output))`
-> * **GetItemBuildModel**`(ItemBuild:buildid)`
+*    Supports item interactions like picking up and dropping items.
+*    Items can be placed on player model bones when picked up, adding visual representation.
 
-> * **CreateItem**`(ItemBuild:buildid, const uuid[] = "")`
-> * **IsValidItem**`(Item:itemid)`
-> * **GetItemBuild**`(Item:itemid, &ItemBuild:buildid)`
-> * **SetItemExtraName**`(Item:itemid, const name[])`
-> * **GetItemExtraName**`(Item:itemid, output[], len = sizeof (output))`
-> * **GetItemUUID**`(Item:itemid, output[], len = sizeof (output))`
+# **Container**
+A script that allows the creation of virtual inventories (containers) to store items. Containers can either be interactable in the game world using buttons or used entirely via script functions.
 
-> * **CreateItemInWorld**`(Item:itemid, Float:x, Float:y, Float:z, Float:rotationX, Float:rotationY, Float:rotationZ, KEY:buttonKey = ITEM_DEFAULT_KEY, worldid = -1, interiorid = -1, Float:distance = ITEM_DEFAULT_DISTANCE)`
-> * **RemoveItemFromWorld**`(Item:itemid)`
-> * **IsItemInWorld**`(Item:itemid)`
-> * **SetItemTextLabel**`(Item:itemid, const format[], colour = 0xFFFFFFFF, Float:distance = ITEM_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.5, OPEN_MP_TAGS:...)`
-> * **GetItemButton**`(Item:itemid, &Button:buttonid)`
-> * **SetItemButtonPos**`(Item:itemid, Float:x, Float:y, Float:z, bool:allowStack = false)`
-> * **GetItemButtonPos**`(Item:itemid, &Float:x, &Float:y, &Float:z)`
-> * **GetButtonItem**`(Button:buttonid, &Item:itemid)`
-> * **GetPlayerNearbyItems**`(playerid, Item:items[MAX_PLAYER_BUTTONS] = { INVALID_ITEM_ID, ... }, &count = 0)`
+*    Supports interaction with containers via buttons or scripts.
+*    Players can switch between their inventory and containers for easy item swapping or looting.
 
-### Entrance
+# **Inventory**
+Extends item functionality by adding a virtual item system. Players can store and retrieve multiple items, with complete control over inventory actions provided through various functions and callbacks.
 
-> * **CreateEntrance**`(Float:extX, Float:extY, Float:extZ, Float:extA, extWorld, extInterior, Float:intX, Float:intY, Float:intZ, Float:intA, intWorld, intInterior)`
-> * **IsValidEntrance**`(Entrance:entranceid)`
+*    Full control over inventory management.
+*    Virtual items can be stored, retrieved, and manipulated.
 
-> * **GetEntranceExteriorPos**`(Entrance:entranceid, &Float:x, &Float:y, &Float:z)`
-> * **GetEntranceExteriorFacingAngle**`(Entrance:entranceid, &Float:a)`
-> * **GetEntranceExteriorVirtualWorld**`(Entrance:entranceid)`
-> * **GetEntranceExteriorInterior**`(Entrance:entranceid)`
-> * **GetExteriorButton**`(Entrance:entranceid, &Button:buttonid)`
-> * **HasButtonExteriorEntrance**`(Button:buttonid)`
-> * **GetButtonExteriorEntrance**`(Button:buttonid, &Entrance:entranceid)`
-> * **GetPlayerExteriorButton**`(playerid, &Button:buttonid)`
-> * **SetPlayerExteriorEntrance**`(playerid, Entrance:entranceid, Float:offset = 1.0)`
-> * **GetPlayerExteriorEntrance**`(playerid, &Entrance:entranceid)`
+# **Installation**
+*    Download and include the necessary .inc files in your project.
+*    Use the functions and callbacks provided to implement buttons, items, inventories, and containers in your server.
 
-> * **GetEntranceInteriorPos**`(Entrance:entranceid, &Float:x, &Float:y, &Float:z)`
-> * **GetEntranceInteriorFacingAngle**`(Entrance:entranceid, &Float:a)`
-> * **GetEntranceInteriorVirtualWorld**`(Entrance:entranceid)`
-> * **GetEntranceInteriorInterior**`(Entrance:entranceid)`
-> * **GetInteriorButton**`(Entrance:entranceid, &Button:buttonid)`
-> * **HasButtonInteriorEntrance**`(Button:buttonid)`
-> * **GetButtonInteriorEntrance**`(Button:buttonid, &Entrance:entranceid)`
-> * **GetPlayerInteriorButton**`(playerid, &Button:buttonid)`
-> * **SetPlayerInteriorEntrance**`(playerid, Entrance:entranceid, Float:offset = 1.0)`
-> * **GetPlayerInteriorEntrance**`(playerid, &Entrance:entranceid)`
+```pwn
+#include <I\I>
+```
+Or include individual:
+```pwn
+#include <I\button>
+```
 
-# Button Callbacks
-
-### OnButtonCreate
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * `~0` or `~1`: Breaks subsequent calls to `OnButtonCreate`.
-
-### OnButtonDestroy
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * `~0` or `~1`: Breaks subsequent calls to `OnButtonDestroy`.
-
-#### OnButtonPress
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * ` 0`: Breaks subsequent calls to `OnPlayerKeyStateChange`.
->    * ` 1`: Continues with subsequent calls to `OnPlayerKeyStateChange`.
->    * `~0`: Breaks subsequent calls to `OnButtonPress` and `OnPlayerKeyStateChange`.
->    * `~1`: Breaks subsequent calls to `OnButtonPress` and continues subsequent calls to `OnPlayerKeyStateChange`.
-
-#### OnButtonRelease
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * ` 0`: Breaks subsequent calls to `OnPlayerKeyStateChange`.
->    * ` 1`: Continues with subsequent calls to `OnPlayerKeyStateChange`.
->    * `~0`: Breaks subsequent calls to `OnButtonRelease` and `OnPlayerKeyStateChange`.
->    * `~1`: Breaks subsequent calls to `OnButtonRelease` and continues subsequent calls to `OnPlayerKeyStateChange`.
-
-#### OnPlayerEnterButtonArea
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * ` 0`: Breaks subsequent calls to `OnPlayerEnterDynamicArea`.
->    * ` 1`: Continues with subsequent calls to `OnPlayerEnterDynamicArea`.
->    * `~0`: Breaks subsequent calls to `OnPlayerEnterButtonArea` and `OnPlayerEnterDynamicArea`.
->    * `~1`: Breaks subsequent calls to `OnPlayerEnterButtonArea` and continues subsequent calls to `OnPlayerEnterDynamicArea`.
-
-#### OnPlayerLeaveButtonArea
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * ` 0`: Breaks subsequent calls to `OnPlayerLeaveDynamicArea`.
->    * ` 1`: Continues with subsequent calls to `OnPlayerLeaveDynamicArea`.
->    * `~0`: Breaks subsequent calls to `OnPlayerLeaveButtonArea` and `OnPlayerLeaveDynamicArea`.
->    * `~1`: Breaks subsequent calls to `OnPlayerLeaveButtonArea` and continues subsequent calls to `OnPlayerLeaveDynamicArea`.
-
-# Item Callbacks
-
-#### OnItemCreate
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * `~0` or `~1`: Breaks subsequent calls to `OnItemCreate`.
-
-#### OnItemDestroy
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * `~0` or `~1`: Breaks subsequent calls to `OnItemDestroy`.
-
-#### OnItemCreateInWorld
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * `~0` or `~1`: Breaks subsequent calls to `OnItemCreateInWorld`.
-
-#### OnItemRemoveFromWorld
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * `~0` or `~1`: Breaks subsequent calls to `OnItemRemoveFromWorld`.
-
-#### OnPlayerPickUpItem
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * ` 0` or ` 1`: Breaks subsequent calls to `OnButtonPress` (Consequently `OnPlayerKeyStateChange` too).
->    * `~0` or `~1`: Breaks subsequent calls to `OnPlayerPickUpItem` and `OnButtonPress` (Consequently `OnPlayerKeyStateChange` too).
-> * #### NOTE:
->    * Return `0` to `CANCEL` the player from picking up the item in the world.
->    * Return `1` for the player pick up the item in the world.
-
-# Entrance Callbacks
-
-#### OnPlayerEnterExteriorArea
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * ` 0`: Breaks subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
->    * ` 1`: Continues with subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
->    * `~0`: Breaks subsequent calls to `OnPlayerEnterExteriorArea` and `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
->    * `~1`: Breaks subsequent calls to `OnPlayerEnterExteriorArea` and continues subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
-
-#### OnPlayerEnterInteriorArea
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * ` 0`: Breaks subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
->    * ` 1`: Continues with subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
->    * `~0`: Breaks subsequent calls to `OnPlayerEnterInteriorArea` and `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
->    * `~1`: Breaks subsequent calls to `OnPlayerEnterInteriorArea` and continues subsequent calls to `OnPlayerEnterButtonArea` (Consequently `OnPlayerEnterDynamicArea` too).
-
-#### OnPlayerLeaveExteriorArea
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * ` 0`: Breaks subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
->    * ` 1`: Continues with subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
->    * `~0`: Breaks subsequent calls to `OnPlayerLeaveExteriorArea` and `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
->    * `~1`: Breaks subsequent calls to `OnPlayerLeaveExteriorArea` and continues subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
-
-#### OnPlayerLeaveInteriorArea
-> * #### Parameters:
->    * `TODO`
-> * #### Returns:
->    * ` 0`: Breaks subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
->    * ` 1`: Continues with subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
->    * `~0`: Breaks subsequent calls to `OnPlayerLeaveInteriorArea` and `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
->    * `~1`: Breaks subsequent calls to `OnPlayerLeaveInteriorArea` and continues subsequent calls to `OnPlayerLeaveButtonArea` (Consequently `OnPlayerLeaveDynamicArea` too).
+# **License**
+This project is open-source and can be modified to suit the needs of your server.
