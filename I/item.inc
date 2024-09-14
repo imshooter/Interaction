@@ -786,6 +786,9 @@ stock timer PickUpItemDelay[400](playerid, bool:animation) {
         Item:itemid = gInteractItemID[playerid]
     ;
 
+    gInteractItemID[playerid] = INVALID_ITEM_ID;
+    gItemInteractorID[itemid] = INVALID_PLAYER_ID;
+
     if (CallLocalFunction("OnPlayerPickedUpItem", "ii", playerid, _:itemid)) {
         return;
     }
@@ -1113,14 +1116,12 @@ hook OnPlayerLeaveButtonArea(playerid, Button:buttonid) {
     return 0;
 }
 
-hook OnPlayerDisconnect(playerid, reason) {
-    if (gHoldItemID[playerid] != INVALID_ITEM_ID) {
-        /**
-         * The Item will still exist if the player disconnects while holding an item.
-         */
+hook OnPlayerConnect(playerid) {
+    gHoldItemID[playerid] = INVALID_ITEM_ID;
+    gInteractItemID[playerid] = INVALID_ITEM_ID;
+    stop gInteractTimer[playerid];
+}
 
-        RemoveCurrentItem(playerid);
-    }
-    
-    return 1;
+hook OnPlayerDisconnect(playerid, reason) {
+    stop gInteractTimer[playerid];
 }
