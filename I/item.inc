@@ -64,7 +64,7 @@ static const
 ;
 
 static enum E_ITEM_BUILD_DATA {
-    E_ITEM_BUILD_NAME[MAX_ITEM_BUILD_NAME + 1],
+    E_ITEM_BUILD_NAME[MAX_ITEM_BUILD_NAME],
     E_ITEM_BUILD_MODEL_ID,
     E_ITEM_BUILD_FLAGS,
 
@@ -113,7 +113,7 @@ static enum E_ITEM_DATA {
     // EXTRA:
 
     E_ITEM_UUID[UUID_LEN],
-    E_ITEM_EXTRA_NAME[MAX_ITEM_NAME + 1]
+    E_ITEM_EXTRA_NAME[MAX_ITEM_NAME]
 };
 
 static
@@ -154,7 +154,7 @@ forward bool:HasItemBuildFlags(ItemBuild:buildid, flags);
 forward Item:CreateItem(ItemBuild:buildid, const uuid[] = "");
 forward bool:IsValidItem(Item:itemid);
 forward bool:DestroyItem(Item:itemid);
-forward bool:GetItemBuild(Item:itemid, &ItemBuild:buildid);
+forward ItemBuild:GetItemBuild(Item:itemid, &ItemBuild:buildid = INVALID_ITEM_BUILD_ID);
 forward bool:SetItemExtraName(Item:itemid, const format[], OPEN_MP_TAGS:...);
 forward bool:GetItemExtraName(Item:itemid, output[], len = sizeof (output));
 forward bool:GetItemUUID(Item:itemid, output[], len = sizeof (output));
@@ -184,8 +184,8 @@ forward bool:PlayerDropItem(playerid);
 forward bool:RemoveCurrentItem(playerid);
 forward GetItemHolder(Item:itemid);
 forward GetItemInteractor(Item:itemid);
-forward bool:GetPlayerItem(playerid, &Item:itemid);
-forward bool:GetPlayerInteractItem(playerid, &Item:itemid);
+forward Item:GetPlayerItem(playerid, &Item:itemid = INVALID_ITEM_ID);
+forward Item:GetPlayerInteractItem(playerid, &Item:itemid = INVALID_ITEM_ID);
 
 /**
  * # Events
@@ -285,19 +285,10 @@ forward OnPlayerDroppedItem(playerid, Item:itemid);
  *   - This callback does not handle returns.
  */
 
-forward OnItemAttachToPlayer(playerid, Item:itemid);
+forward OnPlayerGetItem(playerid, Item:itemid);
 
 /**
- * # OnItemAttachToPlayer
- *
- * # Returns
- *   - This callback does not handle returns.
- */
-
-forward OnItemDetachFromPlayer(playerid, Item:itemid);
-
-/**
- * # OnItemDetachFromPlayer
+ * # OnPlayerGetItem
  *
  * # Returns
  *   - This callback does not handle returns.
@@ -441,14 +432,16 @@ stock bool:DestroyItem(Item:itemid) {
     return true;
 }
 
-stock bool:GetItemBuild(Item:itemid, &ItemBuild:buildid) {
+stock ItemBuild:GetItemBuild(Item:itemid, &ItemBuild:buildid = INVALID_ITEM_BUILD_ID) {
     if (!IsValidItem(itemid)) {
-        return false;
+        buildid = INVALID_ITEM_BUILD_ID;
+
+        return buildid;
     }
 
     buildid = gItemData[itemid][E_ITEM_BUILD_ID];
 
-    return true;
+    return buildid;
 }
 
 stock bool:SetItemExtraName(Item:itemid, const format[], OPEN_MP_TAGS:...) {
@@ -828,16 +821,12 @@ stock timer DropItemDelay[400](playerid) {
         GetPlayerInterior(playerid)
     );
 
-    // Detach
     RemoveCurrentItem(playerid);
     ApplyAnimation(playerid, "BOMBER", "BOM_PLANT_2IDLE", 4.0, false, false, false, false, 0);
     
-    // Update
     Streamer_Update(playerid);
 
-    // Calls
     CallLocalFunction("OnPlayerDroppedItem", "ii", playerid, _:itemid);
-    CallLocalFunction("OnItemDetachFromPlayer", "ii", playerid, _:itemid);
 }
 
 stock bool:PlayerPickUpItem(playerid, Item:itemid) {
@@ -967,24 +956,28 @@ stock GetItemInteractor(Item:itemid) {
     return gItemInteractorID[itemid];
 }
 
-stock bool:GetPlayerItem(playerid, &Item:itemid) {
+stock Item:GetPlayerItem(playerid, &Item:itemid = INVALID_ITEM_ID) {
     if (!IsPlayerConnected(playerid)) {
-        return false;
+        itemid = INVALID_ITEM_ID;
+        
+        return itemid;
     }
 
     itemid = gHoldItemID[playerid];
 
-    return true;
+    return itemid;
 }
 
-stock bool:GetPlayerInteractItem(playerid, &Item:itemid) {
+stock Item:GetPlayerInteractItem(playerid, &Item:itemid = INVALID_ITEM_ID) {
     if (!IsPlayerConnected(playerid)) {
-        return false;
+        itemid = INVALID_ITEM_ID;
+
+        return itemid;
     }
 
     itemid = gInteractItemID[playerid];
 
-    return true;
+    return itemid;
 }
 
 /**
@@ -1029,7 +1022,7 @@ static stock void:AttachItemInternal(playerid, Item:itemid) {
         SetPlayerSpecialAction(playerid, SPECIAL_ACTION_CARRY);
     }
 
-    CallLocalFunction("OnItemAttachToPlayer", "ii", playerid, _:itemid);
+    CallLocalFunction("OnPlayerGetItem", "ii", playerid, _:itemid);
 }
 
 /**
