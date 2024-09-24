@@ -45,6 +45,10 @@
     #define ITEM_KEY_DROP_ITEM (KEY_NO)
 #endif
 
+#if !defined ITEM_KEY_USE_ITEM
+    #define ITEM_KEY_USE_ITEM (KEY_SECONDARY_ATTACK)
+#endif
+
 #if !defined ITEM_DEFAULT_DISTANCE
     #define ITEM_DEFAULT_DISTANCE (100.0)
 #endif
@@ -266,6 +270,16 @@ forward OnPlayerPickUpItem(playerid, Item:itemid);
  *   - `1`: Prevents the animation from picking up the item in the world.
  */
 
+forward OnPlayerDropItem(playerid, Item:itemid);
+
+/**
+ * # OnPlayerDropItem
+ *
+ * # Returns
+ *   - `0`: Allows the player's animation of dropping the item into the world and creating the item (object) in the world.
+ *   - `1`: Prevents the player's animation of dropping the item into the world and creating the item (object) in the world.
+ */
+
 forward OnPlayerPickedUpItem(playerid, Item:itemid);
 
 /**
@@ -289,6 +303,15 @@ forward OnPlayerGetItem(playerid, Item:itemid);
 
 /**
  * # OnPlayerGetItem
+ *
+ * # Returns
+ *   - This callback does not handle returns.
+ */
+
+forward OnPlayerUseItem(playerid, Item:itemid);
+
+/**
+ * # OnPlayerUseItem
  *
  * # Returns
  *   - This callback does not handle returns.
@@ -940,6 +963,28 @@ stock bool:RemoveCurrentItem(playerid) {
     return true;
 }
 
+stock bool:PlayerUseItem(playerid) {
+    if (!IsPlayerConnected(playerid)) {
+        return false;
+    }
+
+    if (!IsIdleAnimationInternal(GetPlayerAnimationIndex(playerid))) {
+        return false;
+    }
+
+    if (gInteractItemID[playerid] != INVALID_ITEM_ID) {
+        return false;
+    }
+
+    if (gHoldItemID[playerid] == INVALID_ITEM_ID) {
+        return false;
+    }
+
+    CallLocalFunction("OnPlayerUseItem", "ii", playerid, _:gHoldItemID[playerid]);
+
+    return true;
+}
+
 stock GetItemHolder(Item:itemid) {
     if (!IsValidItem(itemid)) {
         return INVALID_PLAYER_ID;
@@ -1025,21 +1070,29 @@ static stock void:AttachItemInternal(playerid, Item:itemid) {
     CallLocalFunction("OnPlayerGetItem", "ii", playerid, _:itemid);
 }
 
+static stock IsIdleAnimationInternal(index) {
+    switch (index) {
+        case 0, 320, 471, 1164, 1183, 1188, 1189: {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 /**
  * # Calls
  */
 
 hook OnPlayerKeyStateChange(playerid, KEY:newkeys, KEY:oldkeys) {
-    if (IsPlayerInAnyVehicle(playerid)) {
-        return 1;
-    }
+    if (!IsPlayerInAnyVehicle(playerid) && GetPlayerState(playerid) != PLAYER_STATE_SPECTATING) {
+        if (newkeys & ITEM_KEY_DROP_ITEM) {
+            PlayerDropItem(playerid);
+        }
 
-    if (GetPlayerState(playerid) == PLAYER_STATE_SPECTATING) {
-        return 1;
-    }
-
-    if (newkeys & ITEM_KEY_DROP_ITEM) {
-        PlayerDropItem(playerid);
+        if (newkeys & ITEM_KEY_USE_ITEM) {
+            PlayerUseItem(playerid);
+        }
     }
 
     return 1;
