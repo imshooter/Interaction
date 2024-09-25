@@ -105,6 +105,8 @@ forward bool:GetPlayerNearbyButtons(playerid, Button:buttons[MAX_AREA_BUTTONS] =
  * # Events
  */
 
+forward OnButtonCreate(Button:buttonid);
+
 /**
  * # OnButtonCreate
  *
@@ -112,7 +114,7 @@ forward bool:GetPlayerNearbyButtons(playerid, Button:buttons[MAX_AREA_BUTTONS] =
  *   - This callback does not handle returns.
  */
 
-forward OnButtonCreate(Button:buttonid);
+forward OnButtonDestroy(Button:buttonid);
 
 /**
  * # OnButtonDestroy
@@ -121,7 +123,7 @@ forward OnButtonCreate(Button:buttonid);
  *   - This callback does not handle returns.
  */
 
-forward OnButtonDestroy(Button:buttonid);
+forward OnButtonPress(playerid, Button:buttonid);
 
 /**
  * # OnButtonPress
@@ -131,7 +133,7 @@ forward OnButtonDestroy(Button:buttonid);
  *   - `1`: (OK) Breaks subsequent calls to `OnPlayerKeyStateChange`.
  */
 
-forward OnButtonPress(playerid, Button:buttonid);
+forward OnButtonRelease(playerid, Button:buttonid);
 
 /**
  * # OnButtonRelease
@@ -141,7 +143,7 @@ forward OnButtonPress(playerid, Button:buttonid);
  *   - `1`: (OK) Breaks subsequent calls to `OnPlayerKeyStateChange`.
  */
 
-forward OnButtonRelease(playerid, Button:buttonid);
+forward OnPlayerEnterButtonArea(playerid, Button:buttonid);
 
 /**
  * # OnPlayerEnterButtonArea
@@ -151,7 +153,7 @@ forward OnButtonRelease(playerid, Button:buttonid);
  *   - `1`: (OK) Breaks subsequent calls to `OnPlayerEnterDynamicArea`.
  */
 
-forward OnPlayerEnterButtonArea(playerid, Button:buttonid);
+forward OnPlayerLeaveButtonArea(playerid, Button:buttonid);
 
 /**
  * # OnPlayerLeaveButtonArea
@@ -160,8 +162,6 @@ forward OnPlayerEnterButtonArea(playerid, Button:buttonid);
  *   - `0`: (Continue) Continues subsequent calls to `OnPlayerLeaveDynamicArea`.
  *   - `1`: (OK) Breaks subsequent calls to `OnPlayerLeaveDynamicArea`.
  */
-
-forward OnPlayerLeaveButtonArea(playerid, Button:buttonid);
 
 /**
  * # API
