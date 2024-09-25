@@ -124,7 +124,7 @@ static
     gItemData[MAX_ITEMS][E_ITEM_DATA]
 ;
 
-static stock
+static
     Item:gInteractItemID[MAX_PLAYERS] = { INVALID_ITEM_ID, ... },
     Item:gHoldItemID[MAX_PLAYERS]     = { INVALID_ITEM_ID, ... },
     gItemInteractorID[MAX_ITEMS]      = { INVALID_PLAYER_ID, ... },
@@ -186,6 +186,7 @@ forward bool:GiveWorldItemToPlayer(playerid, Item:itemid);
 forward bool:PlayerPickUpItem(playerid, Item:itemid);
 forward bool:PlayerDropItem(playerid);
 forward bool:RemoveCurrentItem(playerid);
+forward bool:PlayerUseItem(playerid);
 forward GetItemHolder(Item:itemid);
 forward GetItemInteractor(Item:itemid);
 forward Item:GetPlayerItem(playerid, &Item:itemid = INVALID_ITEM_ID);
@@ -411,6 +412,10 @@ stock bool:HasItemBuildFlags(ItemBuild:buildid, flags) {
  */
 
 stock Item:CreateItem(ItemBuild:buildid, const uuid[] = "") {
+    if (!IsValidItemBuild(buildid)) {
+        return INVALID_ITEM_ID;
+    }
+
     new const
         Item:itemid = Item:Iter_Alloc(Item)
     ;

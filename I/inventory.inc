@@ -29,6 +29,11 @@ static
 
 forward bool:AddItemToInventory(playerid, Item:itemid, &index = -1, bool:call = true);
 forward bool:RemoveItemFromInventory(playerid, index, &Item:itemid = INVALID_ITEM_ID, bool:call = true);
+forward bool:SetInventorySize(playerid, size);
+forward GetInventorySize(playerid);
+forward bool:SetInventoryOrdered(playerid, bool:ordered);
+forward bool:IsInventoryOrdered(playerid);
+forward GetInventoryItemCount(playerid);
 forward bool:IsInventoryEmpty(playerid);
 forward bool:IsInventoryFull(playerid);
 forward bool:IsInventorySlotUsed(playerid, index);
@@ -61,7 +66,7 @@ forward OnItemRemoveFromInventory(playerid, Item:itemid, index);
  * # Iter
  */
 
-stock bool:Iter_Func@InventoryItem(playerid) {
+stock bool:Iter_Func@PlayerInventory(playerid) {
     if (!IsPlayerConnected(playerid)) {
         return false;
     }
@@ -77,7 +82,7 @@ stock bool:Iter_Func@InventoryItem(playerid) {
     return true;
 }
 
-#define Iterator@InventoryItem iteryield
+#define Iterator@PlayerInventory iteryield
 
 /**
  * # External
@@ -113,6 +118,46 @@ stock bool:RemoveItemFromInventory(playerid, index, &Item:itemid = INVALID_ITEM_
     }
 
     return true;
+}
+
+stock bool:SetInventorySize(playerid, size) {
+    if (!IsPlayerConnected(playerid)) {
+        return false;
+    }
+
+    return SetContainerSize(gOwnerContainerID[playerid], size);
+}
+
+stock GetInventorySize(playerid) {
+    if (!IsPlayerConnected(playerid)) {
+        return 0;
+    }
+
+    return GetContainerSize(gOwnerContainerID[playerid]);
+}
+
+stock bool:SetInventoryOrdered(playerid, bool:ordered) {
+    if (!IsPlayerConnected(playerid)) {
+        return false;
+    }
+
+    return SetContainerOrdered(gOwnerContainerID[playerid], ordered);
+}
+
+stock bool:IsInventoryOrdered(playerid) {
+    if (!IsPlayerConnected(playerid)) {
+        return false;
+    }
+
+    return IsContainerOrdered(gOwnerContainerID[playerid]);
+}
+
+stock GetInventoryItemCount(playerid) {
+    if (!IsPlayerConnected(playerid)) {
+        return 0;
+    }
+
+    return GetContainerItemCount(gOwnerContainerID[playerid]);
 }
 
 stock bool:IsInventoryEmpty(playerid) {

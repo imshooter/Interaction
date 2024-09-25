@@ -62,10 +62,10 @@ forward bool:SetContainerSize(Container:containerid, size);
 forward GetContainerSize(Container:containerid);
 forward bool:SetContainerOrdered(Container:containerid, bool:ordered);
 forward bool:IsContainerOrdered(Container:containerid);
-forward GetContainerItemCount(Container:containerid);
 forward bool:AddItemToContainer(Container:containerid, Item:itemid, &index = -1, playerid = INVALID_PLAYER_ID, bool:call = true);
 forward bool:RemoveItemFromContainer(Container:containerid, index, &Item:itemid = INVALID_ITEM_ID, playerid = INVALID_PLAYER_ID, bool:call = true);
 forward bool:TransferContainerItem(Container:containerid1, Container:containerid2, index, &Item:itemid = INVALID_ITEM_ID);
+forward GetContainerItemCount(Container:containerid);
 forward bool:IsContainerEmpty(Container:containerid);
 forward bool:IsContainerFull(Container:containerid);
 forward bool:IsContainerSlotUsed(Container:containerid, index);
@@ -246,14 +246,6 @@ stock bool:IsContainerOrdered(Container:containerid) {
     return pool_is_ordered(gContainerData[containerid][E_CONTAINER_POOL]);
 }
 
-stock GetContainerItemCount(Container:containerid) {
-    if (!IsValidContainer(containerid)) {
-        return 0;
-    }
-
-    return pool_size(gContainerData[containerid][E_CONTAINER_POOL]);
-}
-
 stock bool:AddItemToContainer(Container:containerid, Item:itemid, &index = -1, playerid = INVALID_PLAYER_ID, bool:call = true) {
     if (!IsValidContainer(containerid)) {
         return false;
@@ -323,6 +315,14 @@ stock bool:TransferContainerItem(Container:containerid1, Container:containerid2,
     AddItemToContainer(containerid2, itemid);
 
     return true;
+}
+
+stock GetContainerItemCount(Container:containerid) {
+    if (!IsValidContainer(containerid)) {
+        return 0;
+    }
+
+    return pool_size(gContainerData[containerid][E_CONTAINER_POOL]);
 }
 
 stock bool:IsContainerEmpty(Container:containerid) {
