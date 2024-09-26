@@ -21,7 +21,6 @@
 #endif
 
 static
-    Map:gItemBuildData,
     Map:gItemExtraData[MAX_ITEMS]
 ;
 
@@ -29,70 +28,11 @@ static
  * # Functions
  */
 
-forward bool:SetKeyItemBuild(const key[], ItemBuild:buildid);
-forward bool:GetKeyItemBuild(const key[], &ItemBuild:buildid);
-forward bool:HasKeyItemBuild(const key[]);
-forward bool:IsItemBuildMatchKey(ItemBuild:buildid, const key[]);
-
 forward bool:HasItemAnyExtraData(Item:itemid);
 forward bool:HasItemExtraData(Item:itemid, const key[]);
 forward bool:SetItemExtraData(Item:itemid, const key[], value);
 forward bool:GetItemExtraData(Item:itemid, const key[], &value);
 forward bool:GetItemExtraDataMap(Item:itemid, &Map:map);
-
-/**
- * # Item Build
- */
-
-stock bool:SetKeyItemBuild(const key[], ItemBuild:buildid) {
-    if (!(0 <= strlen(key) < MAX_ITEM_KEY_LENGTH)) {
-        return false;
-    }
-
-    if (!IsValidItemBuild(buildid)) {
-        return false;
-    }
-
-    if (!map_valid(gItemBuildData)) {
-        gItemBuildData = map_new();
-    }
-
-    map_str_set(gItemBuildData, key, _:buildid);
-
-    return true;
-}
-
-stock bool:GetKeyItemBuild(const key[], &ItemBuild:buildid) {
-    if (!HasKeyItemBuild(key)) {
-        return false;
-    }
-
-    return map_str_get_safe(gItemBuildData, key, _:buildid);
-}
-
-stock bool:HasKeyItemBuild(const key[]) {
-    if (!map_valid(gItemBuildData)) {
-        return false;
-    }
-
-    return map_has_str_key(gItemBuildData, key);
-}
-
-stock bool:IsItemBuildMatchKey(ItemBuild:buildid, const key[]) {
-    if (!IsValidItemBuild(buildid)) {
-        return false;
-    }
-
-    new
-        ItemBuild:buildid2
-    ;
-
-    if (!GetKeyItemBuild(key, buildid2)) {
-        return false;
-    }
-
-    return (buildid == buildid2);
-}
 
 /**
  * # Item
