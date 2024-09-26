@@ -85,9 +85,7 @@ stock bool:GetButtonExtraData(Button:buttonid, const key[], &value) {
         return false;
     }
 
-    value = map_str_get(gButtonExtraData[buttonid], key);
-
-    return true;
+    return map_str_get_safe(gButtonExtraData[buttonid], key, value);
 }
 
 stock bool:GetButtonExtraDataMap(Button:buttonid, &Map:map) {
