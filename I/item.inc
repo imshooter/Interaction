@@ -180,7 +180,7 @@ forward bool:GetItemButton(Item:itemid, &Button:buttonid);
 forward bool:HasButtonItem(Button:buttonid);
 forward bool:GetButtonItem(Button:buttonid, &Item:itemid);
 forward bool:GetPlayerNearbyItems(playerid, Item:items[MAX_AREA_BUTTONS] = { INVALID_ITEM_ID, ... }, &count = 0);
-forward bool:GivePlayerItem(playerid, Item:itemid);
+forward bool:SetPlayerItem(playerid, Item:itemid);
 forward bool:GiveWorldItemToPlayer(playerid, Item:itemid);
 
 forward bool:PlayerPickUpItem(playerid, Item:itemid);
@@ -766,7 +766,7 @@ stock bool:GetPlayerNearbyItems(playerid, Item:items[MAX_AREA_BUTTONS] = { INVAL
     return (count != 0);
 }
 
-stock bool:GivePlayerItem(playerid, Item:itemid) {
+stock bool:SetPlayerItem(playerid, Item:itemid) {
     if (!IsPlayerConnected(playerid)) {
         return false;
     }
