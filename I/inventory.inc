@@ -18,6 +18,10 @@
     #define MAX_INVENTORY_SLOTS (128)
 #endif
 
+#if !defined INVENTORY_CONTAINER_NAME
+    #define INVENTORY_CONTAINER_NAME ("Inventory")
+#endif
+
 static
     Container:gOwnerContainerID[MAX_PLAYERS] = { INVALID_CONTAINER_ID, ... },
     gContainerOwnerID[MAX_CONTAINERS] = { INVALID_PLAYER_ID, ... }
@@ -208,7 +212,7 @@ stock bool:GetInventoryContainer(playerid, &Container:containerid) {
 
 static void:PlayerInvSetupInternal(playerid) {
     new const
-        Container:containerid = CreateContainer("Inventory", MAX_CONTAINER_SLOTS)
+        Container:containerid = CreateContainer(INVENTORY_CONTAINER_NAME, MAX_CONTAINER_SLOTS)
     ;
 
     if (!IsValidContainer(containerid)) {
