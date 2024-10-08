@@ -171,10 +171,10 @@ forward OnPlayerEnteredEntrance(playerid, Entrance:entranceid);
  *   - This callback does not handle returns.
  */
 
-forward OnPlayerLeavedEntrance(playerid, Entrance:entranceid);
+forward OnPlayerLeftEntrance(playerid, Entrance:entranceid);
 
 /**
- * # OnPlayerLeavedEntrance
+ * # OnPlayerLeftEntrance
  *
  * # Returns
  *   - This callback does not handle returns.
@@ -299,7 +299,7 @@ stock bool:SetPlayerExteriorEntrance(playerid, Entrance:entranceid, Float:offset
     SetPlayerFacingAngle(playerid, gEntranceData[entranceid][E_ENTRANCE_EXT_A]);
     SetCameraBehindPlayer(playerid);
 
-    CallLocalFunction("OnPlayerLeavedEntrance", "ii", playerid, _:entranceid);
+    CallLocalFunction("OnPlayerLeftEntrance", "ii", playerid, _:entranceid);
 
     return true;
 }
