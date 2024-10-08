@@ -76,27 +76,27 @@ new
 forward Entrance:CreateEntrance(Float:extX, Float:extY, Float:extZ, Float:extA, extWorld, extInterior, Float:intX, Float:intY, Float:intZ, Float:intA, intWorld, intInterior, KEY:buttonKey = ENTRANCE_DEFAULT_BUTTON_KEY, priority = ENTRANCE_DEFAULT_BUTTON_PRIORITY);
 forward bool:IsValidEntrance(Entrance:entranceid);
 
-forward bool:GetEntranceExteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Float:z);
-forward bool:GetEntranceExteriorFacingAngle(Entrance:entranceid, &Float:a);
-forward GetEntranceExteriorVirtualWorld(Entrance:entranceid);
-forward GetEntranceExteriorInterior(Entrance:entranceid);
-forward bool:GetEntranceExteriorButton(Entrance:entranceid, &Button:buttonid);
+forward bool:GetExteriorEntrancePos(Entrance:entranceid, &Float:x, &Float:y, &Float:z);
+forward bool:GetExteriorEntranceFacingAngle(Entrance:entranceid, &Float:a);
+forward GetExteriorEntranceVirtualWorld(Entrance:entranceid);
+forward GetExteriorEntranceInterior(Entrance:entranceid);
+forward bool:GetExteriorEntranceButton(Entrance:entranceid, &Button:buttonid);
 forward bool:HasButtonExteriorEntrance(Button:buttonid);
 forward bool:GetButtonExteriorEntrance(Button:buttonid, &Entrance:entranceid);
 forward bool:SetPlayerExteriorEntrance(playerid, Entrance:entranceid, Float:offset = ENTRANCE_DEFAULT_FORWARD_OFFSET);
 forward bool:GetPlayerExteriorEntrance(playerid, &Entrance:entranceid);
-forward bool:GetPlayerExteriorButton(playerid, &Button:buttonid);
+forward bool:GetPlayerExteriorEntranceButton(playerid, &Button:buttonid);
 
-forward bool:GetEntranceInteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Float:z);
-forward bool:GetEntranceInteriorFacingAngle(Entrance:entranceid, &Float:a);
-forward GetEntranceInteriorVirtualWorld(Entrance:entranceid);
-forward GetEntranceInteriorInterior(Entrance:entranceid);
-forward bool:GetEntranceInteriorButton(Entrance:entranceid, &Button:buttonid);
+forward bool:GetInteriorEntrancePos(Entrance:entranceid, &Float:x, &Float:y, &Float:z);
+forward bool:GetInteriorEntranceFacingAngle(Entrance:entranceid, &Float:a);
+forward GetInteriorEntranceVirtualWorld(Entrance:entranceid);
+forward GetInteriorEntranceInterior(Entrance:entranceid);
+forward bool:GetInteriorEntranceButton(Entrance:entranceid, &Button:buttonid);
 forward bool:HasButtonInteriorEntrance(Button:buttonid);
 forward bool:GetButtonInteriorEntrance(Button:buttonid, &Entrance:entranceid);
 forward bool:SetPlayerInteriorEntrance(playerid, Entrance:entranceid, Float:offset = ENTRANCE_DEFAULT_FORWARD_OFFSET);
 forward bool:GetPlayerInteriorEntrance(playerid, &Entrance:entranceid);
-forward bool:GetPlayerInteriorButton(playerid, &Button:buttonid);
+forward bool:GetPlayerInteriorEntranceButton(playerid, &Button:buttonid);
 
 /**
  * # Events
@@ -140,6 +140,44 @@ forward OnPlayerLeaveInteriorArea(playerid, Entrance:entranceid);
  * # Returns
  *   - `0`: (Continue) Continues subsequent calls to `OnPlayerLeaveButtonArea`.
  *   - `1`: (OK) Breaks subsequent calls to `OnPlayerLeaveButtonArea`.
+ */
+
+forward OnPlayerEnterEntrance(playerid, Entrance:entranceid);
+
+/**
+ * # OnPlayerEnterEntrance
+ *
+ * # Returns
+ *   - `0`: Allows the player to be set inside the entrance.
+ *   - `1`: Prevents the player from being set inside the entrance.
+ */
+
+forward OnPlayerLeaveEntrance(playerid, Entrance:entranceid);
+
+/**
+ * # OnPlayerLeaveEntrance
+ *
+ * # Returns
+ *   - `0`: Allows the player to be set outside the entrance.
+ *   - `1`: Prevents the player from being set outside the entrance.
+ */
+
+forward OnPlayerEnteredEntrance(playerid, Entrance:entranceid);
+
+/**
+ * # OnPlayerEnteredEntrance
+ *
+ * # Returns
+ *   - This callback does not handle returns.
+ */
+
+forward OnPlayerLeavedEntrance(playerid, Entrance:entranceid);
+
+/**
+ * # OnPlayerLeavedEntrance
+ *
+ * # Returns
+ *   - This callback does not handle returns.
  */
 
 /**
@@ -190,7 +228,7 @@ stock bool:IsValidEntrance(Entrance:entranceid) {
  * # Exterior
  */
 
-stock bool:GetEntranceExteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Float:z) {
+stock bool:GetExteriorEntrancePos(Entrance:entranceid, &Float:x, &Float:y, &Float:z) {
     if (!IsValidEntrance(entranceid)) {
         return false;
     }
@@ -202,7 +240,7 @@ stock bool:GetEntranceExteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Floa
     return true;
 }
 
-stock bool:GetEntranceExteriorFacingAngle(Entrance:entranceid, &Float:a) {
+stock bool:GetExteriorEntranceFacingAngle(Entrance:entranceid, &Float:a) {
     if (!IsValidEntrance(entranceid)) {
         return false;
     }
@@ -212,7 +250,7 @@ stock bool:GetEntranceExteriorFacingAngle(Entrance:entranceid, &Float:a) {
     return true;
 }
 
-stock GetEntranceExteriorVirtualWorld(Entrance:entranceid) {
+stock GetExteriorEntranceVirtualWorld(Entrance:entranceid) {
     if (!IsValidEntrance(entranceid)) {
         return -1;
     }
@@ -220,7 +258,7 @@ stock GetEntranceExteriorVirtualWorld(Entrance:entranceid) {
     return gEntranceData[entranceid][E_ENTRANCE_EXT_WORLD_ID];
 }
 
-stock GetEntranceExteriorInterior(Entrance:entranceid) {
+stock GetExteriorEntranceInterior(Entrance:entranceid) {
     if (!IsValidEntrance(entranceid)) {
         return -1;
     }
@@ -228,7 +266,7 @@ stock GetEntranceExteriorInterior(Entrance:entranceid) {
     return gEntranceData[entranceid][E_ENTRANCE_EXT_INTERIOR_ID];
 }
 
-stock bool:GetEntranceExteriorButton(Entrance:entranceid, &Button:buttonid) {
+stock bool:GetExteriorEntranceButton(Entrance:entranceid, &Button:buttonid) {
     if (!IsValidEntrance(entranceid)) {
         return false;
     }
@@ -261,6 +299,8 @@ stock bool:SetPlayerExteriorEntrance(playerid, Entrance:entranceid, Float:offset
     SetPlayerFacingAngle(playerid, gEntranceData[entranceid][E_ENTRANCE_EXT_A]);
     SetCameraBehindPlayer(playerid);
 
+    CallLocalFunction("OnPlayerLeavedEntrance", "ii", playerid, _:entranceid);
+
     return true;
 }
 
@@ -288,7 +328,7 @@ stock bool:GetPlayerExteriorEntrance(playerid, &Entrance:entranceid) {
     return true;
 }
 
-stock bool:GetPlayerExteriorButton(playerid, &Button:buttonid) {
+stock bool:GetPlayerExteriorEntranceButton(playerid, &Button:buttonid) {
     if (!IsPlayerConnected(playerid)) {
         return false;
     }
@@ -312,7 +352,7 @@ stock bool:GetPlayerExteriorButton(playerid, &Button:buttonid) {
  * # Interior
  */
 
-stock bool:GetEntranceInteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Float:z) {
+stock bool:GetInteriorEntrancePos(Entrance:entranceid, &Float:x, &Float:y, &Float:z) {
     if (!IsValidEntrance(entranceid)) {
         return false;
     }
@@ -324,7 +364,7 @@ stock bool:GetEntranceInteriorPos(Entrance:entranceid, &Float:x, &Float:y, &Floa
     return true;
 }
 
-stock bool:GetEntranceInteriorFacingAngle(Entrance:entranceid, &Float:a) {
+stock bool:GetInteriorEntranceFacingAngle(Entrance:entranceid, &Float:a) {
     if (!IsValidEntrance(entranceid)) {
         return false;
     }
@@ -334,7 +374,7 @@ stock bool:GetEntranceInteriorFacingAngle(Entrance:entranceid, &Float:a) {
     return true;
 }
 
-stock GetEntranceInteriorVirtualWorld(Entrance:entranceid) {
+stock GetInteriorEntranceVirtualWorld(Entrance:entranceid) {
     if (!IsValidEntrance(entranceid)) {
         return -1;
     }
@@ -342,7 +382,7 @@ stock GetEntranceInteriorVirtualWorld(Entrance:entranceid) {
     return gEntranceData[entranceid][E_ENTRANCE_INT_WORLD_ID];
 }
 
-stock GetEntranceInteriorInterior(Entrance:entranceid) {
+stock GetInteriorEntranceInterior(Entrance:entranceid) {
     if (!IsValidEntrance(entranceid)) {
         return -1;
     }
@@ -350,7 +390,7 @@ stock GetEntranceInteriorInterior(Entrance:entranceid) {
     return gEntranceData[entranceid][E_ENTRANCE_INT_INTERIOR_ID];
 }
 
-stock bool:GetEntranceInteriorButton(Entrance:entranceid, &Button:buttonid) {
+stock bool:GetInteriorEntranceButton(Entrance:entranceid, &Button:buttonid) {
     if (!IsValidEntrance(entranceid)) {
         return false;
     }
@@ -383,6 +423,8 @@ stock bool:SetPlayerInteriorEntrance(playerid, Entrance:entranceid, Float:offset
     SetPlayerFacingAngle(playerid, gEntranceData[entranceid][E_ENTRANCE_INT_A]);
     SetCameraBehindPlayer(playerid);
 
+    CallLocalFunction("OnPlayerEnteredEntrance", "ii", playerid, _:entranceid);
+
     return true;
 }
 
@@ -410,7 +452,7 @@ stock bool:GetPlayerInteriorEntrance(playerid, &Entrance:entranceid) {
     return true;
 }
 
-stock bool:GetPlayerInteriorButton(playerid, &Button:buttonid) {
+stock bool:GetPlayerInteriorEntranceButton(playerid, &Button:buttonid) {
     if (!IsPlayerConnected(playerid)) {
         return false;
     }
@@ -441,8 +483,13 @@ hook OnButtonPress(playerid, Button:buttonid) {
         ;
 
         GetButtonExteriorEntrance(buttonid, entranceid);
-        SetPlayerInteriorEntrance(playerid, entranceid);
 
+        if (CallLocalFunction("OnPlayerEnterEntrance", "ii", playerid, _:entranceid)) {
+            return ~1;
+        }
+
+        SetPlayerInteriorEntrance(playerid, entranceid);
+        
         return ~1;
     }
 
@@ -452,6 +499,11 @@ hook OnButtonPress(playerid, Button:buttonid) {
         ;
 
         GetButtonInteriorEntrance(buttonid, entranceid);
+
+        if (CallLocalFunction("OnPlayerLeaveEntrance", "ii", playerid, _:entranceid)) {
+            return ~1;
+        }
+
         SetPlayerExteriorEntrance(playerid, entranceid);
 
         return ~1;
