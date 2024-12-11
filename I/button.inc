@@ -273,7 +273,7 @@ stock bool:SetButtonKeys(Button:buttonid, KEY:buttonKeys) {
         return false;
     }
 
-    gButtonData[buttonid][E_BUTTON_KEYS] |= buttonKeys;
+    gButtonData[buttonid][E_BUTTON_KEYS] ^= buttonKeys;
 
     return true;
 }
