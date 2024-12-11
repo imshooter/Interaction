@@ -28,7 +28,7 @@ public OnGameModeInit() {
     #pragma unused P, E
 
     // Set
-    SetItemBuildOptions(gItemBuildPizza, OPTION_FLAG(U) | OPTION_FLAG(D) | OPTION_FLAG(S) | OPTION_FLAG(I) | OPTION_FLAG(C));
+    SetItemBuildOptions(gItemBuildPizza, ITEM_BUILD_OPTION_FLAG(U) | ITEM_BUILD_OPTION_FLAG(D) | ITEM_BUILD_OPTION_FLAG(S) | ITEM_BUILD_OPTION_FLAG(I) | ITEM_BUILD_OPTION_FLAG(C));
 
     // Show
     new
@@ -39,14 +39,14 @@ public OnGameModeInit() {
 
     GetItemBuildOptions(gItemBuildPizza, options, .count = optionCount);
     
-    for (new i; i != optionCount; i++) {
+    for (new i; i != optionCount; ++i) {
         GetItemBuildOptionName(options[i], optionName);
         printf("%i. %s", i+1, optionName);
     }
 
     // Has
-    printf("Has options? %c", HasItemBuildOptions(gItemBuildPizza, OPTION_FLAG(U) | OPTION_FLAG(I) | OPTION_FLAG(C)) ? 'Y' : 'N');
-    printf("Has options? %c", HasItemBuildOptions(gItemBuildPizza, OPTION_FLAG(P) | OPTION_FLAG(I) | OPTION_FLAG(C)) ? 'Y' : 'N');
+    printf("Has options? %c", HasItemBuildOptions(gItemBuildPizza, ITEM_BUILD_OPTION_FLAG(U) | ITEM_BUILD_OPTION_FLAG(I) | ITEM_BUILD_OPTION_FLAG(C)) ? 'Y' : 'N');
+    printf("Has options? %c", HasItemBuildOptions(gItemBuildPizza, ITEM_BUILD_OPTION_FLAG(P) | ITEM_BUILD_OPTION_FLAG(I) | ITEM_BUILD_OPTION_FLAG(C)) ? 'Y' : 'N');
 
     return 1;
 }

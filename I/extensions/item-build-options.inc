@@ -20,7 +20,7 @@
 #define INVALID_ITEM_BUILD_OPTION_ID \
     (ItemBuildOpt:-1)
 
-#define OPTION_FLAG(%0) \
+#define ITEM_BUILD_OPTION_FLAG(%0) \
     (ItemBuildOpt:(1 << _:(%0)))
 
 static
