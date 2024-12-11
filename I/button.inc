@@ -77,11 +77,13 @@ new
  * # Functions
  */
 
-forward Button:CreateButton(Float:x, Float:y, Float:z, KEY:buttonKey = BUTTON_DEFAULT_KEY, Float:size = 1.0, worldid = -1, interiorid = -1, priority = 0);
+forward Button:CreateButton(Float:x, Float:y, Float:z, KEY:buttonKeys = BUTTON_DEFAULT_KEY, Float:size = 1.0, worldid = -1, interiorid = -1, priority = 0);
 forward bool:DestroyButton(Button:buttonid);
 forward bool:IsValidButton(Button:buttonid);
 forward bool:SetButtonPos(Button:buttonid, Float:x, Float:y, Float:z);
 forward bool:GetButtonPos(Button:buttonid, &Float:x, &Float:y, &Float:z);
+forward bool:SetButtonKeys(Button:buttonid, KEY:buttonKeys);
+forward bool:GetButtonKeys(Button:buttonid, &KEY:buttonKeys);
 forward bool:SetButtonPriority(Button:buttonid, priority);
 forward GetButtonPriority(Button:buttonid);
 forward bool:SetButtonSize(Button:buttonid, Float:size);
@@ -167,7 +169,7 @@ forward OnPlayerLeaveButtonArea(playerid, Button:buttonid);
  * # API
  */
 
-stock Button:CreateButton(Float:x, Float:y, Float:z, KEY:buttonKey = BUTTON_DEFAULT_KEY, Float:size = 1.0, worldid = -1, interiorid = -1, priority = 0) {
+stock Button:CreateButton(Float:x, Float:y, Float:z, KEY:buttonKeys = BUTTON_DEFAULT_KEY, Float:size = 1.0, worldid = -1, interiorid = -1, priority = 0) {
     new const
         Button:buttonid = Button:Iter_Alloc(Button)
     ;
@@ -176,7 +178,7 @@ stock Button:CreateButton(Float:x, Float:y, Float:z, KEY:buttonKey = BUTTON_DEFA
         return INVALID_BUTTON_ID;
     }
 
-    gButtonData[buttonid][E_BUTTON_KEYS] |= buttonKey;
+    gButtonData[buttonid][E_BUTTON_KEYS] |= buttonKeys;
     gButtonData[buttonid][E_BUTTON_PRIORITY] = priority;
 
     gButtonData[buttonid][E_BUTTON_X] = x;
@@ -262,6 +264,26 @@ stock bool:GetButtonPos(Button:buttonid, &Float:x, &Float:y, &Float:z) {
     x = gButtonData[buttonid][E_BUTTON_X];
     y = gButtonData[buttonid][E_BUTTON_Y];
     z = gButtonData[buttonid][E_BUTTON_Z];
+
+    return true;
+}
+
+stock bool:SetButtonKeys(Button:buttonid, KEY:buttonKeys) {
+    if (!IsValidButton(buttonid)) {
+        return false;
+    }
+
+    gButtonData[buttonid][E_BUTTON_KEYS] |= buttonKeys;
+
+    return true;
+}
+
+stock bool:GetButtonKeys(Button:buttonid, &KEY:buttonKeys) {
+    if (!IsValidButton(buttonid)) {
+        return false;
+    }
+
+    buttonKeys |= gButtonData[buttonid][E_BUTTON_KEYS];
 
     return true;
 }
