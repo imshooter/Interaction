@@ -79,7 +79,6 @@ static enum E_ITEM_BUILD_DATA {
     Float:E_ITEM_BUILD_OBJ_OFFSET_Z,
     Float:E_ITEM_BUILD_BTN_OFFSET_Z,
 
-    E_ITEM_BUILD_ATTACH_BONE_ID,
     Float:E_ITEM_BUILD_ATTACH_X,
     Float:E_ITEM_BUILD_ATTACH_Y,
     Float:E_ITEM_BUILD_ATTACH_Z,
@@ -88,7 +87,8 @@ static enum E_ITEM_BUILD_DATA {
     Float:E_ITEM_BUILD_ATTACH_ROT_Z,
     E_ITEM_BUILD_MATERIAL_COLOUR_1,
     E_ITEM_BUILD_MATERIAL_COLOUR_2,
-    bool:E_ITEM_BUILD_USE_CARRY_ANIM
+    bool:E_ITEM_BUILD_USE_CARRY_ANIM,
+    E_ITEM_BUILD_ATTACH_BONE_ID
 };
 
 static
@@ -147,7 +147,7 @@ new
  * # Functions
  */
 
-forward ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:worldRotY = 0.0, Float:worldRotZ = 0.0, Float:objectOffsetZ = 0.0, bone = 0, Float:attachX = 0.0, Float:attachY = 0.0, Float:attachZ = 0.0, Float:attachRotX = 0.0, Float:attachRotY = 0.0, Float:attachRotZ = 0.0, materialColour1 = 0, materialColour2 = 0, bool:useCarryAnim = false, Float:buttonOffsetZ = ITEM_FLOOR_OFFSET);
+forward ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:worldRotY = 0.0, Float:worldRotZ = 0.0, Float:objectOffsetZ = 0.0, Float:attachX = 0.0, Float:attachY = 0.0, Float:attachZ = 0.0, Float:attachRotX = 0.0, Float:attachRotY = 0.0, Float:attachRotZ = 0.0, materialColour1 = 0, materialColour2 = 0, bool:useCarryAnim = false, bone = 6, Float:buttonOffsetZ = ITEM_FLOOR_OFFSET);
 forward bool:IsValidItemBuild(ItemBuild:buildid);
 forward bool:GetItemBuildName(ItemBuild:buildid, output[], len = sizeof (output));
 forward GetItemBuildModel(ItemBuild:buildid);
@@ -175,7 +175,7 @@ forward bool:SetItemVirtualWorld(Item:itemid, worldid);
 forward GetItemVirtualWorld(Item:itemid);
 forward bool:SetItemInterior(Item:itemid, interiorid);
 forward GetItemInterior(Item:itemid);
-forward bool:SetItemTextLabel(Item:itemid, const format[], colour = 0xFFFFFFFF, Float:distance = ITEM_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.5, OPEN_MP_TAGS:...);
+forward bool:SetItemLabelText(Item:itemid, const format[], colour = 0xFFFFFFFF, Float:distance = ITEM_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.5, OPEN_MP_TAGS:...);
 forward bool:GetItemButton(Item:itemid, &Button:buttonid);
 forward bool:HasButtonItem(Button:buttonid);
 forward bool:GetButtonItem(Button:buttonid, &Item:itemid);
@@ -322,7 +322,7 @@ forward OnPlayerUseItem(playerid, Item:itemid);
  * # Item Build
  */
 
-stock ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:worldRotY = 0.0, Float:worldRotZ = 0.0, Float:objectOffsetZ = 0.0, bone = 0, Float:attachX = 0.0, Float:attachY = 0.0, Float:attachZ = 0.0, Float:attachRotX = 0.0, Float:attachRotY = 0.0, Float:attachRotZ = 0.0, materialColour1 = 0, materialColour2 = 0, bool:useCarryAnim = false, Float:buttonOffsetZ = ITEM_FLOOR_OFFSET) {
+stock ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:worldRotY = 0.0, Float:worldRotZ = 0.0, Float:objectOffsetZ = 0.0, Float:attachX = 0.0, Float:attachY = 0.0, Float:attachZ = 0.0, Float:attachRotX = 0.0, Float:attachRotY = 0.0, Float:attachRotZ = 0.0, materialColour1 = 0, materialColour2 = 0, bool:useCarryAnim = false, bone = 6, Float:buttonOffsetZ = ITEM_FLOOR_OFFSET) {
     new const
         ItemBuild:buildid = ItemBuild:Iter_Alloc(ItemBuild)
     ;
@@ -341,7 +341,6 @@ stock ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:wo
     gItemBuildData[buildid][E_ITEM_BUILD_OBJ_OFFSET_Z] = objectOffsetZ;
     gItemBuildData[buildid][E_ITEM_BUILD_BTN_OFFSET_Z] = buttonOffsetZ;
 
-    gItemBuildData[buildid][E_ITEM_BUILD_ATTACH_BONE_ID] = bone;
     gItemBuildData[buildid][E_ITEM_BUILD_ATTACH_X] = attachX;
     gItemBuildData[buildid][E_ITEM_BUILD_ATTACH_Y] = attachY;
     gItemBuildData[buildid][E_ITEM_BUILD_ATTACH_Z] = attachZ;
@@ -351,6 +350,7 @@ stock ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:wo
     gItemBuildData[buildid][E_ITEM_BUILD_MATERIAL_COLOUR_1] = materialColour1;
     gItemBuildData[buildid][E_ITEM_BUILD_MATERIAL_COLOUR_2] = materialColour2;
     gItemBuildData[buildid][E_ITEM_BUILD_USE_CARRY_ANIM] = useCarryAnim;
+    gItemBuildData[buildid][E_ITEM_BUILD_ATTACH_BONE_ID] = bone;
 
     return buildid;
 }
@@ -710,7 +710,7 @@ stock GetItemInterior(Item:itemid) {
     return gItemData[itemid][E_ITEM_WORLD_ID];
 }
 
-stock bool:SetItemTextLabel(Item:itemid, const format[], colour = 0xFFFFFFFF, Float:distance = ITEM_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.5, OPEN_MP_TAGS:...) {
+stock bool:SetItemLabelText(Item:itemid, const format[], colour = 0xFFFFFFFF, Float:distance = ITEM_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.5, OPEN_MP_TAGS:...) {
     if (!IsItemInWorld(itemid)) {
         return false;
     }

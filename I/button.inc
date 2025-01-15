@@ -94,8 +94,8 @@ forward bool:SetButtonInterior(Button:buttonid, interiorid);
 forward GetButtonInterior(Button:buttonid);
 forward bool:SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...);
 forward bool:GetButtonPopupText(Button:buttonid, output[], len = sizeof (output));
-forward bool:SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...);
-forward bool:UpdateButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...);
+forward bool:SetButtonLabelText(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...);
+forward bool:UpdateButtonLabelText(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...);
 forward bool:DestroyButtonTextLabel(Button:buttonid);
 forward bool:GetButtonDynamic3DTextLabel(Button:buttonid, &STREAMER_TAG_3D_TEXT_LABEL:textid);
 forward bool:GetButtonDynamicArea(Button:buttonid, &STREAMER_TAG_AREA:areaid);
@@ -411,7 +411,7 @@ stock bool:GetButtonPopupText(Button:buttonid, output[], len = sizeof (output)) 
     return true;
 }
 
-stock bool:SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...) {
+stock bool:SetButtonLabelText(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...) {
     if (!IsValidButton(buttonid)) {
         return false;
     }
@@ -450,7 +450,7 @@ stock bool:SetButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFF
     return true;
 }
 
-stock bool:UpdateButtonTextLabel(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...) {
+stock bool:UpdateButtonLabelText(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...) {
     if (!IsValidButton(buttonid)) {
         return false;
     }
