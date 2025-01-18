@@ -197,126 +197,19 @@ forward Item:GetPlayerInteractItem(playerid, &Item:itemid = INVALID_ITEM_ID);
  */
 
 forward OnItemCreate(Item:itemid);
-
-/**
- * # OnItemCreate
- *
- * # Returns
- *   - This callback does not handle returns.
- */
-
 forward OnItemDestroy(Item:itemid);
-
-/**
- * # OnItemDestroy
- *
- * # Returns
- *   - This callback does not handle returns.
- */
-
 forward OnItemCreateInWorld(Item:itemid);
-
-/**
- * # OnItemCreateInWorld
- *
- * # Returns
- *   - This callback does not handle returns.
- */
-
 forward OnItemRemoveFromWorld(Item:itemid);
-
-/**
- * # OnItemRemoveFromWorld
- *
- * # Returns
- *   - This callback does not handle returns.
- */
-
 forward OnPlayerEnterItemArea(playerid, Item:itemid);
-
-/**
-* # OnPlayerEnterItemArea
-*
-* # Returns
-*   - `0`: (Continue) Continues subsequent calls to `OnPlayerEnterButtonArea`.
-*   - `1`: (OK) Breaks subsequent calls to `OnPlayerEnterButtonArea`.
-*/
-
 forward OnPlayerLeaveItemArea(playerid, Item:itemid);
-
-/**
- * # OnPlayerLeaveItemArea
- *
- * # Returns
- *   - `0`: (Continue) Continues subsequent calls to `OnPlayerLeaveButtonArea`.
- *   - `1`: (OK) Breaks subsequent calls to `OnPlayerLeaveButtonArea`.
- */
-
-forward OnPlayerPickUpItemWithItem(playerid, Item:itemid1, Item:itemid2);
-
-/**
- * # OnPlayerPickUpItemWithItem
- *
- * # Returns
- *   - This callback does not handle returns.
- */
-
 forward OnPlayerPickUpItem(playerid, Item:itemid);
-
-/**
- * # OnPlayerPickUpItem
- *
- * # Returns
- *   - `0`: Allows the player the animation of picking up the item from the world.
- *   - `1`: Prevents the animation from picking up the item in the world.
- */
-
-forward OnPlayerDropItem(playerid, Item:itemid);
-
-/**
- * # OnPlayerDropItem
- *
- * # Returns
- *   - `0`: Allows the player's animation of dropping the item into the world and creating the item (object) in the world.
- *   - `1`: Prevents the player's animation of dropping the item into the world and creating the item (object) in the world.
- */
-
+forward OnPlayerPickUpItemWithItem(playerid, Item:itemid1, Item:itemid2);
 forward OnPlayerPickedUpItem(playerid, Item:itemid);
-
-/**
- * # OnPlayerPickedUpItem
- *
- * # Returns
- *   - `0`: Allows the item to be attached to the player.
- *   - `1`: Prevents the item from being attached to the player.
- */
-
+forward OnPlayerDropItem(playerid, Item:itemid);
 forward OnPlayerDroppedItem(playerid, Item:itemid);
-
-/**
- * # OnPlayerDroppedItem
- *
- * # Returns
- *   - This callback does not handle returns.
- */
-
 forward OnPlayerGetItem(playerid, Item:itemid);
-
-/**
- * # OnPlayerGetItem
- *
- * # Returns
- *   - This callback does not handle returns.
- */
-
+forward OnPlayerGotItem(playerid, Item:itemid);
 forward OnPlayerUseItem(playerid, Item:itemid);
-
-/**
- * # OnPlayerUseItem
- *
- * # Returns
- *   - This callback does not handle returns.
- */
 
 /**
  * # Item Build
@@ -775,7 +668,7 @@ stock bool:SetPlayerItem(playerid, Item:itemid) {
         return false;
     }
 
-    AttachItemInternal(playerid, itemid);
+    PlayerGetItemInternal(playerid, itemid);
 
     return true;
 }
@@ -789,7 +682,7 @@ stock bool:GiveWorldItemToPlayer(playerid, Item:itemid) {
         return false;
     }
 
-    AttachItemInternal(playerid, itemid);
+    PlayerGetItemInternal(playerid, itemid);
 
     return true;
 }
@@ -851,7 +744,7 @@ stock timer DropItemDelay[400](playerid) {
 
     RemoveCurrentItem(playerid);
     ApplyAnimation(playerid, "BOMBER", "BOM_PLANT_2IDLE", 4.0, false, false, false, false, 0);
-    
+
     Streamer_Update(playerid);
 
     CallLocalFunction("OnPlayerDroppedItem", "ii", playerid, _:itemid);
@@ -955,7 +848,7 @@ stock bool:RemoveCurrentItem(playerid) {
     if (IsPlayerAttachedObjectSlotUsed(playerid, ITEM_ATTACH_INDEX)) {
         RemovePlayerAttachedObject(playerid, ITEM_ATTACH_INDEX);
     }
-    
+
     if (gItemBuildData[buildid][E_ITEM_BUILD_USE_CARRY_ANIM]) {
         SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
     }
@@ -1034,13 +927,17 @@ stock Item:GetPlayerInteractItem(playerid, &Item:itemid = INVALID_ITEM_ID) {
  * # Internal
  */
 
-static stock void:AttachItemInternal(playerid, Item:itemid) {
+static stock void:PlayerGetItemInternal(playerid, Item:itemid) {
+    RemoveItemFromWorld(itemid);
+    RemoveCurrentItem(GetItemHolder(itemid));
+
+    if (CallLocalFunction("OnPlayerGetItem", "ii", playerid, _:itemid)) {
+        return;
+    }
+
     new const
         ItemBuild:buildid = gItemData[itemid][E_ITEM_BUILD_ID]
     ;
-
-    RemoveItemFromWorld(itemid);
-    RemoveCurrentItem(GetItemHolder(itemid));
 
     gItemData[itemid][E_ITEM_X] = 0.0;
     gItemData[itemid][E_ITEM_Y] = 0.0;
@@ -1072,7 +969,7 @@ static stock void:AttachItemInternal(playerid, Item:itemid) {
         SetPlayerSpecialAction(playerid, SPECIAL_ACTION_CARRY);
     }
 
-    CallLocalFunction("OnPlayerGetItem", "ii", playerid, _:itemid);
+    CallLocalFunction("OnPlayerGotItem", "ii", playerid, _:itemid);
 }
 
 static stock IsIdleAnimationInternal(index) {
@@ -1111,25 +1008,19 @@ hook OnButtonPress(playerid, Button:buttonid) {
 
         GetButtonItem(buttonid, itemid);
 
-        if (gItemHolderID[itemid] != INVALID_PLAYER_ID) {
-            return 0;
+        if (gItemHolderID[itemid] == INVALID_PLAYER_ID && gItemInteractorID[itemid] == INVALID_PLAYER_ID) {
+            if (IsValidItem(gHoldItemID[playerid])) {
+                CallLocalFunction("OnPlayerPickUpItemWithItem", "iii", playerid, _:itemid, _:gHoldItemID[playerid]);
+
+                return ~1;
+            }
+
+            if (CallLocalFunction("OnPlayerPickUpItem", "ii", playerid, _:itemid)) {
+                return ~1;
+            }
+
+            PlayerPickUpItem(playerid, itemid);
         }
-
-        if (gItemInteractorID[itemid] != INVALID_PLAYER_ID) {
-            return 0;
-        }
-
-        if (IsValidItem(gHoldItemID[playerid])) {
-            CallLocalFunction("OnPlayerPickUpItemWithItem", "iii", playerid, _:itemid, _:gHoldItemID[playerid]);
-
-            return ~1;
-        }
-
-        if (CallLocalFunction("OnPlayerPickUpItem", "ii", playerid, _:itemid)) {
-            return ~1;
-        }
-
-        PlayerPickUpItem(playerid, itemid);
     }
 
     return 0;
@@ -1147,7 +1038,7 @@ hook OnPlayerEnterButtonArea(playerid, Button:buttonid) {
             return ~1;
         }
     }
-    
+
     return 0;
 }
 
@@ -1156,14 +1047,14 @@ hook OnPlayerLeaveButtonArea(playerid, Button:buttonid) {
         new
             Item:itemid
         ;
-        
+
         GetButtonItem(buttonid, itemid);
 
         if (CallLocalFunction("OnPlayerLeaveItemArea", "ii", playerid, _:itemid)) {
             return ~1;
         }
     }
-    
+
     return 0;
 }
 
