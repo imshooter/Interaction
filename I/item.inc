@@ -160,6 +160,8 @@ forward Item:CreateItem(ItemBuild:buildid, modelid = -1, const uuid[] = "");
 forward bool:IsValidItem(Item:itemid);
 forward bool:DestroyItem(Item:itemid);
 forward ItemBuild:GetItemBuild(Item:itemid, &ItemBuild:buildid = INVALID_ITEM_BUILD_ID);
+forward bool:SetItemModel(Item:itemid, modelid);
+forward GetItemModel(Item:itemid);
 forward bool:SetItemExtraName(Item:itemid, const format[], OPEN_MP_TAGS:...);
 forward bool:GetItemExtraName(Item:itemid, output[], len = sizeof (output));
 forward bool:GetItemUUID(Item:itemid, output[], len = sizeof (output));
@@ -305,7 +307,7 @@ stock bool:HasItemBuildFlags(ItemBuild:buildid, flags) {
  * # Item
  */
 
-stock Item:CreateItem(ItemBuild:buildid, modelid -1, const uuid[] = "") {
+stock Item:CreateItem(ItemBuild:buildid, modelid = -1, const uuid[] = "") {
     if (!IsValidItemBuild(buildid)) {
         return INVALID_ITEM_ID;
     }
