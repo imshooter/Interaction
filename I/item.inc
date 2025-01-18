@@ -156,12 +156,10 @@ forward bool:SetItemBuildFlags(ItemBuild:buildid, flags);
 forward GetItemBuildFlags(ItemBuild:buildid);
 forward bool:HasItemBuildFlags(ItemBuild:buildid, flags);
 
-forward Item:CreateItem(ItemBuild:buildid, modelid = -1, const uuid[] = "");
+forward Item:CreateItem(ItemBuild:buildid, const uuid[] = "");
 forward bool:IsValidItem(Item:itemid);
 forward bool:DestroyItem(Item:itemid);
 forward ItemBuild:GetItemBuild(Item:itemid, &ItemBuild:buildid = INVALID_ITEM_BUILD_ID);
-forward bool:SetItemModel(Item:itemid, modelid);
-forward GetItemModel(Item:itemid);
 forward bool:SetItemExtraName(Item:itemid, const format[], OPEN_MP_TAGS:...);
 forward bool:GetItemExtraName(Item:itemid, output[], len = sizeof (output));
 forward bool:GetItemUUID(Item:itemid, output[], len = sizeof (output));
@@ -307,7 +305,7 @@ stock bool:HasItemBuildFlags(ItemBuild:buildid, flags) {
  * # Item
  */
 
-stock Item:CreateItem(ItemBuild:buildid, modelid = -1, const uuid[] = "") {
+stock Item:CreateItem(ItemBuild:buildid, const uuid[] = "") {
     if (!IsValidItemBuild(buildid)) {
         return INVALID_ITEM_ID;
     }
@@ -327,7 +325,6 @@ stock Item:CreateItem(ItemBuild:buildid, modelid = -1, const uuid[] = "") {
     }
 
     gItemData[itemid][E_ITEM_BUILD_ID] = buildid;
-    gItemData[itemid][E_ITEM_MODEL_ID] = modelid >= 0 ? modelid : GetItemBuildModel(buildid);
 
     CallLocalFunction("OnItemCreate", "i", _:itemid);
 
@@ -367,24 +364,6 @@ stock ItemBuild:GetItemBuild(Item:itemid, &ItemBuild:buildid = INVALID_ITEM_BUIL
     buildid = gItemData[itemid][E_ITEM_BUILD_ID];
 
     return buildid;
-}
-
-stock bool:SetItemModel(Item:itemid, modelid) {
-    if (!IsValidItem(itemid)) {
-        return false;
-    }
-
-    gItemData[itemid][E_ITEM_MODEL_ID] = modelid;
-
-    return true;
-}
-
-stock GetItemModel(Item:itemid) {
-    if (!IsValidItem(itemid)) {
-        return -1;
-    }
-
-    return gItemData[itemid][E_ITEM_MODEL_ID];
 }
 
 stock bool:SetItemExtraName(Item:itemid, const format[], OPEN_MP_TAGS:...) {
