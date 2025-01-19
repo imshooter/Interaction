@@ -178,7 +178,7 @@ forward bool:SetItemVirtualWorld(Item:itemid, worldid);
 forward GetItemVirtualWorld(Item:itemid);
 forward bool:SetItemInterior(Item:itemid, interiorid);
 forward GetItemInterior(Item:itemid);
-forward bool:SetItemLabelText(Item:itemid, const format[], colour = 0xFFFFFFFF, Float:distance = ITEM_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.5, OPEN_MP_TAGS:...);
+forward bool:SetItemLabelText(Item:itemid, const format[], colour = 0xFFFFFFFF, Float:distance = ITEM_DEFAULT_DISTANCE, bool:testLOS = true, Float:offsetZ = 0.5, OPEN_MP_TAGS:...);
 forward bool:GetItemButton(Item:itemid, &Button:buttonid);
 forward bool:HasButtonItem(Button:buttonid);
 forward bool:GetButtonItem(Button:buttonid, &Item:itemid);
@@ -625,12 +625,12 @@ stock GetItemInterior(Item:itemid) {
     return gItemData[itemid][E_ITEM_WORLD_ID];
 }
 
-stock bool:SetItemLabelText(Item:itemid, const format[], colour = 0xFFFFFFFF, Float:distance = ITEM_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.5, OPEN_MP_TAGS:...) {
+stock bool:SetItemLabelText(Item:itemid, const format[], colour = 0xFFFFFFFF, Float:distance = ITEM_DEFAULT_DISTANCE, bool:testLOS = true, Float:offsetZ = 0.5, OPEN_MP_TAGS:...) {
     if (!IsItemInWorld(itemid)) {
         return false;
     }
 
-    SetButtonTextLabel(gItemData[itemid][E_ITEM_BUTTON_ID], format, colour, distance, testLOS, fOffsetZ, ___(6));
+    SetButtonLabelText(gItemData[itemid][E_ITEM_BUTTON_ID], format, colour, distance, testLOS, offsetZ, ___(6));
 
     return true;
 }
