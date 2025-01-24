@@ -14,8 +14,8 @@
  * # Header
  */
 
-#if !defined MAX_INVENTORY_SLOTS
-    #define MAX_INVENTORY_SLOTS (128)
+#if !defined MAX_INVENTORY_CAPACITY
+    #define MAX_INVENTORY_CAPACITY (128)
 #endif
 
 #if !defined INVENTORY_CONTAINER_NAME
@@ -49,22 +49,7 @@ forward bool:GetInventoryContainer(playerid, &Container:containerid);
  */
 
 forward OnItemAddToInventory(playerid, Item:itemid, index);
-
-/**
- * # OnItemAddToInventory
- *
- * # Returns
- *   - This callback does not handle returns.
- */
-
 forward OnItemRemoveFromInventory(playerid, Item:itemid, index);
-
-/**
- * # OnItemRemoveFromInventory
- *
- * # Returns
- *   - This callback does not handle returns.
- */
 
 /**
  * # Iter
@@ -212,7 +197,7 @@ stock bool:GetInventoryContainer(playerid, &Container:containerid) {
 
 static void:PlayerInvSetupInternal(playerid) {
     new const
-        Container:containerid = CreateContainer(INVENTORY_CONTAINER_NAME, MAX_CONTAINER_SLOTS)
+        Container:containerid = CreateContainer(INVENTORY_CONTAINER_NAME, MAX_INVENTORY_CAPACITY)
     ;
 
     if (!IsValidContainer(containerid)) {
