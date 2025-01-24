@@ -93,8 +93,8 @@ forward GetButtonVirtualWorld(Button:buttonid);
 forward bool:SetButtonInterior(Button:buttonid, interiorid);
 forward GetButtonInterior(Button:buttonid);
 forward bool:SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...);
-forward bool:GetButtonPopupText(Button:buttonid, output[], len = sizeof (output));
-forward bool:SetButtonLabelText(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...);
+forward bool:GetButtonPopupText(Button:buttonid, output[], size = sizeof (output));
+forward bool:SetButtonLabelText(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:offsetZ = 0.0, OPEN_MP_TAGS:...);
 forward bool:UpdateButtonLabelText(Button:buttonid, const format[], colour = 0xFFFFFFFF, OPEN_MP_TAGS:...);
 forward bool:DestroyButtonTextLabel(Button:buttonid);
 forward bool:GetButtonDynamic3DTextLabel(Button:buttonid, &STREAMER_TAG_3D_TEXT_LABEL:textid);
@@ -401,17 +401,17 @@ stock bool:SetButtonPopupText(Button:buttonid, const format[], OPEN_MP_TAGS:...)
     return true;
 }
 
-stock bool:GetButtonPopupText(Button:buttonid, output[], len = sizeof (output)) {
+stock bool:GetButtonPopupText(Button:buttonid, output[], size = sizeof (output)) {
     if (!IsValidButton(buttonid)) {
         return false;
     }
 
-    strunpack(output, gButtonData[buttonid][E_BUTTON_TEXT], len);
+    strunpack(output, gButtonData[buttonid][E_BUTTON_TEXT], size);
 
     return true;
 }
 
-stock bool:SetButtonLabelText(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:fOffsetZ = 0.0, OPEN_MP_TAGS:...) {
+stock bool:SetButtonLabelText(Button:buttonid, const format[], colour = 0xFFFFFFFF, Float:distance = BUTTON_DEFAULT_DISTANCE, bool:testLOS = true, Float:offsetZ = 0.0, OPEN_MP_TAGS:...) {
     if (!IsValidButton(buttonid)) {
         return false;
     }
@@ -436,7 +436,7 @@ stock bool:SetButtonLabelText(Button:buttonid, const format[], colour = 0xFFFFFF
         colour,
         gButtonData[buttonid][E_BUTTON_X],
         gButtonData[buttonid][E_BUTTON_Y],
-        gButtonData[buttonid][E_BUTTON_Z] + fOffsetZ,
+        gButtonData[buttonid][E_BUTTON_Z] + offsetZ,
         distance,
         _,
         _,
@@ -630,7 +630,7 @@ hook OnPlayerKeyStateChange(playerid, KEY:newkeys, KEY:oldkeys) {
 }
 
 hook OnPlayerEnterDynamicArea(playerid, STREAMER_TAG_AREA:areaid) {
-    if (GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && gInButtonCount{playerid} != (MAX_AREA_BUTTONS - 1)) {
+    if (GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && (gInButtonCount{playerid} + 1) < MAX_AREA_BUTTONS) {
         new
             data[2]
         ;

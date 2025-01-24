@@ -92,7 +92,8 @@ static enum E_ITEM_BUILD_DATA {
 };
 
 static
-    gItemBuildData[MAX_ITEM_BUILDS][E_ITEM_BUILD_DATA]
+    gItemBuildData[MAX_ITEM_BUILDS][E_ITEM_BUILD_DATA],
+    ItemBuild:gItemBuildCount
 ;
 
 static enum E_ITEM_DATA {
@@ -139,7 +140,6 @@ const static
 ;
 
 new
-    Iterator:ItemBuild<ItemBuild:ITEM_BUILD_ITER_SIZE>,
     Iterator:Item<Item:ITEM_ITER_SIZE>,
     Iterator:ItemWorld<Item:ITEM_ITER_SIZE>
 ;
@@ -150,11 +150,12 @@ new
 
 forward ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:worldRotY = 0.0, Float:worldRotZ = 0.0, Float:objectOffsetZ = 0.0, Float:attachX = 0.0, Float:attachY = 0.0, Float:attachZ = 0.0, Float:attachRotX = 0.0, Float:attachRotY = 0.0, Float:attachRotZ = 0.0, materialColour1 = 0, materialColour2 = 0, bool:useCarryAnim = false, bone = 6, Float:buttonOffsetZ = ITEM_FLOOR_OFFSET);
 forward bool:IsValidItemBuild(ItemBuild:buildid);
-forward bool:GetItemBuildName(ItemBuild:buildid, output[], len = sizeof (output));
+forward bool:GetItemBuildName(ItemBuild:buildid, output[], size = sizeof (output));
 forward GetItemBuildModel(ItemBuild:buildid);
 forward bool:SetItemBuildFlags(ItemBuild:buildid, flags);
 forward GetItemBuildFlags(ItemBuild:buildid);
 forward bool:HasItemBuildFlags(ItemBuild:buildid, flags);
+forward CountItemBuild();
 
 forward Item:CreateItem(ItemBuild:buildid, const uuid[] = "", extraid = -1);
 forward bool:IsValidItem(Item:itemid);
@@ -163,9 +164,9 @@ forward ItemBuild:GetItemBuild(Item:itemid, &ItemBuild:buildid = INVALID_ITEM_BU
 forward bool:SetItemExtraID(Item:itemid, extraid);
 forward GetItemExtraID(Item:itemid);
 forward bool:SetItemExtraName(Item:itemid, const format[], OPEN_MP_TAGS:...);
-forward bool:GetItemExtraName(Item:itemid, output[], len = sizeof (output));
-forward bool:GetItemUUID(Item:itemid, output[], len = sizeof (output));
-forward bool:GetItemName(Item:itemid, output[], len = sizeof (output));
+forward bool:GetItemExtraName(Item:itemid, output[], size = sizeof (output));
+forward bool:GetItemUUID(Item:itemid, output[], size = sizeof (output));
+forward bool:GetItemName(Item:itemid, output[], size = sizeof (output));
 
 forward bool:CreateItemInWorld(Item:itemid, Float:x, Float:y, Float:z, Float:rotationX, Float:rotationY, Float:rotationZ, KEY:buttonKey = ITEM_KEY_PICK_UP_ITEM, worldid = -1, interiorid = -1, Float:distance = ITEM_DEFAULT_DISTANCE, priority = ITEM_DEFAULT_BUTTON_PRIORITY);
 forward bool:IsItemInWorld(Item:itemid);
@@ -219,13 +220,13 @@ forward OnPlayerUseItem(playerid, Item:itemid);
  */
 
 stock ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:worldRotY = 0.0, Float:worldRotZ = 0.0, Float:objectOffsetZ = 0.0, Float:attachX = 0.0, Float:attachY = 0.0, Float:attachZ = 0.0, Float:attachRotX = 0.0, Float:attachRotY = 0.0, Float:attachRotZ = 0.0, materialColour1 = 0, materialColour2 = 0, bool:useCarryAnim = false, bone = 6, Float:buttonOffsetZ = ITEM_FLOOR_OFFSET) {
-    new const
-        ItemBuild:buildid = ItemBuild:Iter_Alloc(ItemBuild)
-    ;
-
-    if (_:buildid == INVALID_ITERATOR_SLOT) {
+    if (gItemBuildCount >= MAX_ITEM_BUILDS) {
         return INVALID_ITEM_BUILD_ID;
     }
+   
+    new const
+        ItemBuild:buildid = gItemBuildCount++
+    ;
 
     strcopy(gItemBuildData[buildid][E_ITEM_BUILD_NAME], name);
     gItemBuildData[buildid][E_ITEM_BUILD_MODEL_ID] = modelid;
@@ -252,19 +253,15 @@ stock ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:wo
 }
 
 stock bool:IsValidItemBuild(ItemBuild:buildid) {
-    if (!(0 <= _:buildid < ITEM_BUILD_ITER_SIZE)) {
-        return false;
-    }
-
-    return Iter_Contains(ItemBuild, buildid);
+    return (0 <= _:buildid < _:gItemBuildCount);
 }
 
-stock bool:GetItemBuildName(ItemBuild:buildid, output[], len = sizeof (output)) {
+stock bool:GetItemBuildName(ItemBuild:buildid, output[], size = sizeof (output)) {
     if (!IsValidItemBuild(buildid)) {
         return false;
     }
 
-    strcopy(output, gItemBuildData[buildid][E_ITEM_BUILD_NAME], len);
+    strcopy(output, gItemBuildData[buildid][E_ITEM_BUILD_NAME], size);
 
     return true;
 }
@@ -301,6 +298,10 @@ stock bool:HasItemBuildFlags(ItemBuild:buildid, flags) {
     }
 
     return ((gItemBuildData[buildid][E_ITEM_BUILD_FLAGS] & flags) == gItemBuildData[buildid][E_ITEM_BUILD_FLAGS]);
+}
+
+stock CountItemBuild() {
+    return _:gItemBuildCount;
 }
 
 /**
@@ -408,27 +409,27 @@ stock bool:SetItemExtraName(Item:itemid, const format[], OPEN_MP_TAGS:...) {
     return true;
 }
 
-stock bool:GetItemExtraName(Item:itemid, output[], len = sizeof (output)) {
+stock bool:GetItemExtraName(Item:itemid, output[], size = sizeof (output)) {
     if (!IsValidItem(itemid)) {
         return false;
     }
 
-    strcopy(output, gItemData[itemid][E_ITEM_EXTRA_NAME], len);
+    strcopy(output, gItemData[itemid][E_ITEM_EXTRA_NAME], size);
 
     return true;
 }
 
-stock bool:GetItemUUID(Item:itemid, output[], len = sizeof (output)) {
+stock bool:GetItemUUID(Item:itemid, output[], size = sizeof (output)) {
     if (!IsValidItem(itemid)) {
         return false;
     }
 
-    strcopy(output, gItemData[itemid][E_ITEM_UUID], len);
+    strcopy(output, gItemData[itemid][E_ITEM_UUID], size);
 
     return true;
 }
 
-stock bool:GetItemName(Item:itemid, output[], len = sizeof (output)) {
+stock bool:GetItemName(Item:itemid, output[], size = sizeof (output)) {
     if (!IsValidItem(itemid)) {
         return false;
     }
@@ -437,12 +438,12 @@ stock bool:GetItemName(Item:itemid, output[], len = sizeof (output)) {
         ItemBuild:buildid = gItemData[itemid][E_ITEM_BUILD_ID]
     ;
 
-    strcopy(output, gItemBuildData[buildid][E_ITEM_BUILD_NAME], len);
+    strcopy(output, gItemBuildData[buildid][E_ITEM_BUILD_NAME], size);
 
     if (!isnull(gItemData[itemid][E_ITEM_EXTRA_NAME])) {
-        strcat(output, " (", len);
-        strcat(output, gItemData[itemid][E_ITEM_EXTRA_NAME], len);
-        strcat(output,  ")", len);
+        strcat(output, " (", size);
+        strcat(output, gItemData[itemid][E_ITEM_EXTRA_NAME], size);
+        strcat(output,  ")", size);
     }
 
     return true;
