@@ -253,7 +253,7 @@ stock ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:wo
 }
 
 stock bool:IsValidItemBuild(ItemBuild:buildid) {
-    return (0 <= _:buildid < _:gItemBuildCount);
+    return UCMP(_:buildid, _:gItemBuildCount);
 }
 
 stock bool:GetItemBuildName(ItemBuild:buildid, output[], size = sizeof (output)) {
@@ -336,7 +336,7 @@ stock Item:CreateItem(ItemBuild:buildid, const uuid[] = "", extraid = -1) {
 }
 
 stock bool:IsValidItem(Item:itemid) {
-    if (!(0 <= _:itemid < ITEM_ITER_SIZE)) {
+    if (!UCMP(_:itemid, ITEM_ITER_SIZE)) {
         return false;
     }
 

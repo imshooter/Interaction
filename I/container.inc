@@ -121,7 +121,7 @@ stock bool:Iter_Func@ContainerItem(Container:containerid) {
         return false;
     }
 
-    for (new Iter:it = pool_iter(gContainerData[containerid][E_CONTAINER_POOL]); iter_inside(it); iter_move_next(it)) {
+    for_pool (it : gContainerData[containerid][E_CONTAINER_POOL]) {
         yield return iter_get_value(it);
     }
 
@@ -135,7 +135,7 @@ stock bool:Iter_Func@ContainerItem(Container:containerid) {
  */
 
 stock Container:CreateContainer(const name[], capacity, bool:ordered = true) {
-    if (!(1 <= capacity <= MAX_CONTAINER_CAPACITY)) {
+    if (!IS_IN_RANGE(capacity, 1, MAX_CONTAINER_CAPACITY)) {
         return INVALID_CONTAINER_ID;
     }
 
@@ -156,7 +156,7 @@ stock Container:CreateContainer(const name[], capacity, bool:ordered = true) {
 }
 
 stock bool:IsValidContainer(Container:containerid) {
-    if (!(0 <= _:containerid < CONTAINER_ITER_SIZE)) {
+    if (!UCMP(_:containerid, CONTAINER_ITER_SIZE)) {
         return false;
     }
 

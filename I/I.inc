@@ -1,14 +1,21 @@
-#if defined _INC_I
+#if defined _INC_INTERACTION
     #endinput
 #endif
-#define _INC_I
+#define _INC_INTERACTION
+
+#if !defined PP_SYNTAX_FOR_LIST
+    #define PP_SYNTAX_FOR_LIST
+#endif
+
+#if !defined PP_SYNTAX_FOR_POOL
+    #define PP_SYNTAX_FOR_POOL
+#endif
 
 #include <I\button>
-#include <I\item>
-#include <I\container>
-#include <I\inventory>
-
-#include <I\item-plus>
 #include <I\button-plus>
 
-#include <I\entrance>
+#include <I\item>
+#include <I\item-plus>
+
+#include <I\container>
+#include <I\inventory>
