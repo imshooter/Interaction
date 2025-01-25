@@ -217,7 +217,7 @@ stock Entrance:CreateEntrance(Float:extX, Float:extY, Float:extZ, Float:extA, ex
 }
 
 stock bool:IsValidEntrance(Entrance:entranceid) {
-    if (!(0 <= _:entranceid < ENTRANCE_ITER_SIZE)) {
+    if (!UCMP(_:entranceid, ENTRANCE_ITER_SIZE)) {
         return false;
     }
 

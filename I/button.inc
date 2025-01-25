@@ -227,7 +227,7 @@ stock bool:DestroyButton(Button:buttonid) {
 }
 
 stock bool:IsValidButton(Button:buttonid) {
-    if (!(0 <= _:buttonid < BUTTON_ITER_SIZE)) {
+    if (!UCMP(_:buttonid, BUTTON_ITER_SIZE)) {
         return false;
     }
 

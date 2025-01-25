@@ -1,7 +1,7 @@
-#if defined _INC_PP_BUTTON
+#if defined _INC_BUTTON_PLUS
     #endinput
 #endif
-#define _INC_PP_BUTTON
+#define _INC_BUTTON_PLUS
 
 #include <I\button>
 #include <PawnPlus>
@@ -59,7 +59,7 @@ stock bool:HasButtonExtraData(Button:buttonid, const key[]) {
 }
 
 stock bool:SetButtonExtraData(Button:buttonid, const key[], value) {
-    if (!(0 < strlen(key) < MAX_BUTTON_KEY_LENGTH)) {
+    if (!IS_IN_RANGE(strlen(key), 1, MAX_BUTTON_KEY_LENGTH)) {
         return false;
     }
 

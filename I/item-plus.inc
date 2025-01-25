@@ -1,7 +1,7 @@
-#if defined _INC_PP_ITEM
+#if defined _INC_ITEM_PLUS
     #endinput
 #endif
-#define _INC_PP_ITEM
+#define _INC_ITEM_PLUS
 
 #include <I\item>
 #include <PawnPlus>
@@ -59,7 +59,7 @@ stock bool:HasItemExtraData(Item:itemid, const key[]) {
 }
 
 stock bool:SetItemExtraData(Item:itemid, const key[], value) {
-    if (!(1 <= strlen(key) <= MAX_ITEM_KEY_LENGTH)) {
+    if (!IS_IN_RANGE(strlen(key), 1, MAX_ITEM_KEY_LENGTH)) {
         return false;
     }
 
