@@ -54,8 +54,8 @@ new
  */
 
 forward Container:CreateContainer(const name[], capacity, bool:ordered = true);
-forward bool:IsValidContainer(Container:containerid);
 forward bool:DestroyContainer(Container:containerid, bool:clear = true);
+forward bool:IsValidContainer(Container:containerid);
 forward bool:SetContainerName(Container:containerid, const name[]);
 forward bool:GetContainerName(Container:containerid, output[], size = sizeof (output));
 forward bool:SetContainerCapacity(Container:containerid, capacity);
@@ -135,7 +135,7 @@ stock bool:Iter_Func@ContainerItem(Container:containerid) {
  */
 
 stock Container:CreateContainer(const name[], capacity, bool:ordered = true) {
-    if (!IS_IN_RANGE(capacity, 1, MAX_CONTAINER_CAPACITY)) {
+    if (NOT_IN_RANGE(capacity, 1, MAX_CONTAINER_CAPACITY + 1)) {
         return INVALID_CONTAINER_ID;
     }
 
@@ -153,14 +153,6 @@ stock Container:CreateContainer(const name[], capacity, bool:ordered = true) {
     CallLocalFunction("OnContainerCreate", "i", _:containerid);
 
     return containerid;
-}
-
-stock bool:IsValidContainer(Container:containerid) {
-    if (!UCMP(_:containerid, CONTAINER_ITER_SIZE)) {
-        return false;
-    }
-
-    return Iter_Contains(Container, containerid);
 }
 
 stock bool:DestroyContainer(Container:containerid, bool:clear = true) {
@@ -188,6 +180,14 @@ stock bool:DestroyContainer(Container:containerid, bool:clear = true) {
     CallLocalFunction("OnContainerDestroy", "i", _:containerid);
 
     return true;
+}
+
+stock bool:IsValidContainer(Container:containerid) {
+    if (!UCMP(_:containerid, CONTAINER_ITER_SIZE)) {
+        return false;
+    }
+
+    return Iter_Contains(Container, containerid);
 }
 
 stock bool:SetContainerName(Container:containerid, const name[]) {

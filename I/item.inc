@@ -158,8 +158,8 @@ forward bool:HasItemBuildFlags(ItemBuild:buildid, flags);
 forward CountItemBuild();
 
 forward Item:CreateItem(ItemBuild:buildid, const uuid[] = "", extraid = -1);
-forward bool:IsValidItem(Item:itemid);
 forward bool:DestroyItem(Item:itemid);
+forward bool:IsValidItem(Item:itemid);
 forward ItemBuild:GetItemBuild(Item:itemid, &ItemBuild:buildid = INVALID_ITEM_BUILD_ID);
 forward bool:SetItemExtraID(Item:itemid, extraid);
 forward GetItemExtraID(Item:itemid);
@@ -335,14 +335,6 @@ stock Item:CreateItem(ItemBuild:buildid, const uuid[] = "", extraid = -1) {
     return itemid;
 }
 
-stock bool:IsValidItem(Item:itemid) {
-    if (!UCMP(_:itemid, ITEM_ITER_SIZE)) {
-        return false;
-    }
-
-    return Iter_Contains(Item, itemid);
-}
-
 stock bool:DestroyItem(Item:itemid) {
     if (!IsValidItem(itemid)) {
         return false;
@@ -356,6 +348,14 @@ stock bool:DestroyItem(Item:itemid) {
     CallLocalFunction("OnItemDestroy", "i", _:itemid);
 
     return true;
+}
+
+stock bool:IsValidItem(Item:itemid) {
+    if (!UCMP(_:itemid, ITEM_ITER_SIZE)) {
+        return false;
+    }
+
+    return Iter_Contains(Item, itemid);
 }
 
 stock ItemBuild:GetItemBuild(Item:itemid, &ItemBuild:buildid = INVALID_ITEM_BUILD_ID) {

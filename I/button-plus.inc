@@ -59,7 +59,7 @@ stock bool:HasButtonExtraData(Button:buttonid, const key[]) {
 }
 
 stock bool:SetButtonExtraData(Button:buttonid, const key[], value) {
-    if (!IS_IN_RANGE(strlen(key), 1, MAX_BUTTON_KEY_LENGTH)) {
+    if (NOT_IN_RANGE(strlen(key), 1, MAX_BUTTON_KEY_LENGTH)) {
         return false;
     }
 
