@@ -59,7 +59,7 @@ stock bool:HasItemExtraData(Item:itemid, const key[]) {
 }
 
 stock bool:SetItemExtraData(Item:itemid, const key[], value) {
-    if (!IS_IN_RANGE(strlen(key), 1, MAX_ITEM_KEY_LENGTH)) {
+    if (NOT_IN_RANGE(strlen(key), 1, MAX_ITEM_KEY_LENGTH)) {
         return false;
     }
 
