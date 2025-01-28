@@ -21,18 +21,88 @@
 #endif
 
 static
-    Map:gItemExtraData[MAX_ITEMS]
+    Map:gItemBuildMap,
+    Map:gItemMap[MAX_ITEMS]
 ;
 
 /**
  * # Functions
  */
 
+forward bool:SetKeyItemBuild(const key[], ItemBuild:buildid);
+forward bool:GetKeyItemBuild(const key[], &ItemBuild:buildid);
+forward bool:HasKeyAnyItemBuild(const key[]);
+forward bool:HasKeyItemBuild(const key[], ItemBuild:buildid);
+
 forward bool:HasItemAnyExtraData(Item:itemid);
 forward bool:HasItemExtraData(Item:itemid, const key[]);
 forward bool:SetItemExtraData(Item:itemid, const key[], value);
 forward bool:GetItemExtraData(Item:itemid, const key[], &value);
 forward bool:GetItemExtraDataMap(Item:itemid, &Map:map);
+
+/**
+ * # Macros
+ */
+
+#define BindKeyToItemBuild SetKeyItemBuild
+#define FetchItemBuildByKey GetKeyItemBuild
+#define DoesKeyHaveItemBuild HasKeyAnyItemBuild
+#define DoesKeyMatchItemBuild HasKeyItemBuild
+
+forward bool:BindKeyToItemBuild(const key[], ItemBuild:buildid);
+forward bool:FetchItemBuildByKey(const key[], &ItemBuild:buildid);
+forward bool:DoesKeyHaveItemBuild(const key[]);
+forward bool:DoesKeyMatchItemBuild(const key[], ItemBuild:buildid);
+
+/**
+ * # Item Build
+ */
+
+stock bool:SetKeyItemBuild(const key[], ItemBuild:buildid) {
+    if (NOT_IN_RANGE(strlen(key), 1, MAX_ITEM_KEY_LENGTH)) {
+        return false;
+    }
+
+    if (!IsValidItemBuild(buildid)) {
+        return false;
+    }
+
+    if (!map_valid(gItemBuildMap)) {
+        gItemBuildMap = map_new();
+    }
+
+    map_str_set(gItemBuildMap, key, _:buildid);
+
+    return true;
+}
+
+stock bool:GetKeyItemBuild(const key[], &ItemBuild:buildid) {
+    if (!HasKeyAnyItemBuild(key)) {
+        return false;
+    }
+
+    return map_str_get_safe(gItemBuildMap, key, _:buildid);
+}
+
+stock bool:HasKeyAnyItemBuild(const key[]) {
+    if (!map_valid(gItemBuildMap)) {
+        return false;
+    }
+
+    return map_has_str_key(gItemBuildMap, key);
+}
+
+stock bool:HasKeyItemBuild(const key[], ItemBuild:buildid) {
+    if (!IsValidItemBuild(buildid)) {
+        return false;
+    }
+
+    new
+        ItemBuild:b
+    ;
+
+    return (GetKeyItemBuild(key, b) && b == buildid);
+}
 
 /**
  * # Item
@@ -43,11 +113,11 @@ stock bool:HasItemAnyExtraData(Item:itemid) {
         return false;
     }
 
-    if (!map_valid(gItemExtraData[itemid])) {
+    if (!map_valid(gItemMap[itemid])) {
         return false;
     }
 
-    return (map_size(gItemExtraData[itemid]) != 0);
+    return (map_size(gItemMap[itemid]) != 0);
 }
 
 stock bool:HasItemExtraData(Item:itemid, const key[]) {
@@ -55,7 +125,7 @@ stock bool:HasItemExtraData(Item:itemid, const key[]) {
         return false;
     }
 
-    return map_has_str_key(gItemExtraData[itemid], key);
+    return map_has_str_key(gItemMap[itemid], key);
 }
 
 stock bool:SetItemExtraData(Item:itemid, const key[], value) {
@@ -67,15 +137,15 @@ stock bool:SetItemExtraData(Item:itemid, const key[], value) {
         return false;
     }
 
-    if (!map_valid(gItemExtraData[itemid])) {
-        gItemExtraData[itemid] = map_new();
+    if (!map_valid(gItemMap[itemid])) {
+        gItemMap[itemid] = map_new();
     }
 
-    if (map_size(gItemExtraData[itemid]) >= MAX_ITEM_ATTRIBUTES) {
+    if (map_size(gItemMap[itemid]) >= MAX_ITEM_ATTRIBUTES) {
         return false;
     }
 
-    map_str_set(gItemExtraData[itemid], key, value);
+    map_str_set(gItemMap[itemid], key, value);
 
     return true;
 }
@@ -85,7 +155,7 @@ stock bool:GetItemExtraData(Item:itemid, const key[], &value) {
         return false;
     }
 
-    return map_str_get_safe(gItemExtraData[itemid], key, value);
+    return map_str_get_safe(gItemMap[itemid], key, value);
 }
 
 stock bool:GetItemExtraDataMap(Item:itemid, &Map:map) {
@@ -93,7 +163,7 @@ stock bool:GetItemExtraDataMap(Item:itemid, &Map:map) {
         return false;
     }
 
-    map = gItemExtraData[itemid];
+    map = gItemMap[itemid];
 
     return true;
 }
@@ -103,8 +173,8 @@ stock bool:GetItemExtraDataMap(Item:itemid, &Map:map) {
  */
 
 hook OnItemDestroy(Item:itemid) {
-    if (map_valid(gItemExtraData[itemid])) {
-        map_delete_deep(gItemExtraData[itemid]);
+    if (map_valid(gItemMap[itemid])) {
+        map_delete_deep(gItemMap[itemid]);
     }
 
     return 1;
