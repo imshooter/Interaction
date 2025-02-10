@@ -21,8 +21,8 @@
     #define MAX_CONTAINER_NAME (16)
 #endif
 
-#if !defined MAX_CONTAINER_CAPACITY
-    #define MAX_CONTAINER_CAPACITY (128)
+#if !defined MAX_CONTAINER_SIZE
+    #define MAX_CONTAINER_SIZE (100)
 #endif
 
 #define INVALID_CONTAINER_ID (Container:-1)
@@ -53,18 +53,17 @@ new
  * # Functions
  */
 
-forward Container:CreateContainer(const name[], capacity, bool:ordered = true);
+forward Container:CreateContainer(const name[], size, bool:ordered = true);
 forward bool:DestroyContainer(Container:containerid, bool:clear = true);
 forward bool:IsValidContainer(Container:containerid);
 forward bool:SetContainerName(Container:containerid, const name[]);
 forward bool:GetContainerName(Container:containerid, output[], size = sizeof (output));
-forward bool:SetContainerCapacity(Container:containerid, capacity);
-forward GetContainerCapacity(Container:containerid);
+forward bool:SetContainerSize(Container:containerid, size);
+forward GetContainerSize(Container:containerid);
 forward bool:SetContainerOrdered(Container:containerid, bool:ordered);
 forward bool:IsContainerOrdered(Container:containerid);
-forward bool:AddItemToContainer(Container:containerid, Item:itemid, &index = -1, playerid = INVALID_PLAYER_ID, bool:call = true);
+forward bool:AddItemToContainer(Container:containerid, Item:itemid, &index = -1, addToIndex = -1, playerid = INVALID_PLAYER_ID, bool:call = true);
 forward bool:RemoveItemFromContainer(Container:containerid, index, &Item:itemid = INVALID_ITEM_ID, playerid = INVALID_PLAYER_ID, bool:call = true);
-forward bool:TransferContainerItem(Container:containerid1, Container:containerid2, index, &Item:itemid = INVALID_ITEM_ID);
 forward GetContainerItemCount(Container:containerid);
 forward bool:IsContainerEmpty(Container:containerid);
 forward bool:IsContainerFull(Container:containerid);
@@ -77,40 +76,9 @@ forward bool:GetItemContainerData(Item:itemid, &Container:containerid = INVALID_
  */
 
 forward OnContainerCreate(Container:containerid);
-
-/**
- * # OnContainerCreate
- *
- * # Returns
- *   - This callback does not handle returns.
- */
-
 forward OnContainerDestroy(Container:containerid);
-
-/**
- * # OnContainerDestroy
- *
- * # Returns
- *   - This callback does not handle returns.
- */
-
 forward OnItemAddToContainer(Container:containerid, Item:itemid, index, playerid);
-
-/**
- * # OnItemAddToContainer
- *
- * # Returns
- *   - This callback does not handle returns.
- */
-
 forward OnItemRemoveFromContainer(Container:containerid, Item:itemid, index, playerid);
-
-/**
- * # OnItemRemoveFromContainer
- *
- * # Returns
- *   - This callback does not handle returns.
- */
 
 /**
  * # Iter
@@ -121,8 +89,8 @@ stock bool:Iter_Func@ContainerItem(Container:containerid) {
         return false;
     }
 
-    for_pool (it : gContainerData[containerid][E_CONTAINER_POOL]) {
-        yield return iter_get_value(it);
+    for (new const Iter:iterator = pool_iter(gContainerData[containerid][E_CONTAINER_POOL]); iter_inside(iterator); iter_move_next(iterator)) {
+        yield return iter_get_value(iterator);
     }
 
     return true;
@@ -134,8 +102,8 @@ stock bool:Iter_Func@ContainerItem(Container:containerid) {
  * # External
  */
 
-stock Container:CreateContainer(const name[], capacity, bool:ordered = true) {
-    if (NOT_IN_RANGE(capacity, 1, MAX_CONTAINER_CAPACITY + 1)) {
+stock Container:CreateContainer(const name[], size, bool:ordered = true) {
+    if (!(1 <= size <= MAX_CONTAINER_SIZE)) {
         return INVALID_CONTAINER_ID;
     }
 
@@ -148,7 +116,7 @@ stock Container:CreateContainer(const name[], capacity, bool:ordered = true) {
     }
 
     strcopy(gContainerData[containerid][E_CONTAINER_NAME], name);
-    gContainerData[containerid][E_CONTAINER_POOL] = pool_new(capacity, ordered);
+    gContainerData[containerid][E_CONTAINER_POOL] = pool_new(size, ordered);
 
     CallLocalFunction("OnContainerCreate", "i", _:containerid);
 
@@ -210,17 +178,17 @@ stock bool:GetContainerName(Container:containerid, output[], size = sizeof (outp
     return true;
 }
 
-stock bool:SetContainerCapacity(Container:containerid, capacity) {
+stock bool:SetContainerSize(Container:containerid, size) {
     if (!IsValidContainer(containerid)) {
         return false;
     }
 
-    pool_resize(gContainerData[containerid][E_CONTAINER_POOL], capacity);
+    pool_resize(gContainerData[containerid][E_CONTAINER_POOL], size);
 
     return true;
 }
 
-stock GetContainerCapacity(Container:containerid) {
+stock GetContainerSize(Container:containerid) {
     if (!IsValidContainer(containerid)) {
         return 0;
     }
@@ -246,7 +214,7 @@ stock bool:IsContainerOrdered(Container:containerid) {
     return pool_is_ordered(gContainerData[containerid][E_CONTAINER_POOL]);
 }
 
-stock bool:AddItemToContainer(Container:containerid, Item:itemid, &index = -1, playerid = INVALID_PLAYER_ID, bool:call = true) {
+stock bool:AddItemToContainer(Container:containerid, Item:itemid, &index = -1, addToIndex = -1, playerid = INVALID_PLAYER_ID, bool:call = true) {
     if (!IsValidContainer(containerid)) {
         return false;
     }
@@ -259,12 +227,19 @@ stock bool:AddItemToContainer(Container:containerid, Item:itemid, &index = -1, p
         return false;
     }
 
-    if (pool_size(gContainerData[containerid][E_CONTAINER_POOL]) >= pool_capacity(gContainerData[containerid][E_CONTAINER_POOL])) {
-        return false;
+    new const
+        Pool:p = gContainerData[containerid][E_CONTAINER_POOL]
+    ;
+
+    if (addToIndex >= 0 && !pool_has(p, addToIndex)) {
+        pool_set(p, addToIndex, _:itemid);
+        index = addToIndex;
+    } else {
+        index = pool_add(p, _:itemid);
     }
 
     gItemContainerID[itemid] = containerid;
-    gItemContainerSlotID[itemid] = index = pool_add(gContainerData[containerid][E_CONTAINER_POOL], _:itemid);
+    gItemContainerSlotID[itemid] = index;
 
     if (call) {
         CallLocalFunction("OnItemAddToContainer", "iiii", _:containerid, _:itemid, index, playerid);
@@ -290,29 +265,6 @@ stock bool:RemoveItemFromContainer(Container:containerid, index, &Item:itemid = 
     if (call) {
         CallLocalFunction("OnItemRemoveFromContainer", "iiii", _:containerid, _:itemid, index, playerid);
     }
-
-    return true;
-}
-
-stock bool:TransferContainerItem(Container:containerid1, Container:containerid2, index, &Item:itemid = INVALID_ITEM_ID) {
-    if (!IsValidContainer(containerid1)) {
-        return false;
-    }
-
-    if (!IsValidContainer(containerid2)) {
-        return false;
-    }
-
-    if (IsContainerSlotUsed(containerid1, index)) {
-        return false;
-    }
-
-    if (IsContainerSlotUsed(containerid2, index)) {
-        return false;
-    }
-
-    RemoveItemFromContainer(containerid1, index, itemid);
-    AddItemToContainer(containerid2, itemid);
 
     return true;
 }

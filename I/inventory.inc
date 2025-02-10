@@ -15,7 +15,7 @@
  */
 
 #if !defined MAX_INVENTORY_CAPACITY
-    #define MAX_INVENTORY_CAPACITY (128)
+    #define MAX_INVENTORY_CAPACITY (100)
 #endif
 
 #if !defined INVENTORY_CONTAINER_NAME
@@ -31,7 +31,7 @@ static
  * # Functions
  */
 
-forward bool:AddItemToInventory(playerid, Item:itemid, &index = -1, bool:call = true);
+forward bool:AddItemToInventory(playerid, Item:itemid, &index = -1, addToIndex = -1, bool:call = true);
 forward bool:RemoveItemFromInventory(playerid, index, &Item:itemid = INVALID_ITEM_ID, bool:call = true);
 forward bool:SetInventorySize(playerid, size);
 forward GetInventorySize(playerid);
@@ -55,7 +55,7 @@ forward OnItemRemoveFromInventory(playerid, Item:itemid, index);
  * # Iter
  */
 
-stock bool:Iter_Func@PlayerInventory(playerid) {
+stock bool:Iter_Func@InventoryItem(playerid) {
     if (!IsPlayerConnected(playerid)) {
         return false;
     }
@@ -63,7 +63,7 @@ stock bool:Iter_Func@PlayerInventory(playerid) {
     new
         Item:itemid
     ;
-
+    
     foreach ((_:itemid) : ContainerItem(gOwnerContainerID[playerid])) {
         yield return (_:itemid);
     }
@@ -71,18 +71,18 @@ stock bool:Iter_Func@PlayerInventory(playerid) {
     return true;
 }
 
-#define Iterator@PlayerInventory iteryield
+#define Iterator@InventoryItem iteryield
 
 /**
  * # External
  */
 
-stock bool:AddItemToInventory(playerid, Item:itemid, &index = -1, bool:call = true) {
+stock bool:AddItemToInventory(playerid, Item:itemid, &index = -1, addToIndex = -1, bool:call = true) {
     if (!IsPlayerConnected(playerid)) {
         return false;
     }
 
-    if (!AddItemToContainer(gOwnerContainerID[playerid], itemid, index, playerid, call)) {
+    if (!AddItemToContainer(gOwnerContainerID[playerid], itemid, index, addToIndex, playerid, call)) {
         return false;
     }
 
