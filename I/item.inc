@@ -70,15 +70,14 @@ static const
 static enum E_ITEM_BUILD_DATA {
     E_ITEM_BUILD_NAME[MAX_ITEM_BUILD_NAME],
     E_ITEM_BUILD_MODEL_ID,
-    E_ITEM_BUILD_FLAGS,
 
-    Float:E_ITEM_BUILD_ROT_OFFSET_X,
-    Float:E_ITEM_BUILD_ROT_OFFSET_Y,
-    Float:E_ITEM_BUILD_ROT_OFFSET_Z,
-
+    // TODO:
+    Float:E_ITEM_BUILD_OBJ_ROT_OFFSET_X,
+    Float:E_ITEM_BUILD_OBJ_ROT_OFFSET_Y,
+    Float:E_ITEM_BUILD_OBJ_ROT_OFFSET_Z,
     Float:E_ITEM_BUILD_OBJ_OFFSET_Z,
-    Float:E_ITEM_BUILD_BTN_OFFSET_Z,
 
+    // Attach
     Float:E_ITEM_BUILD_ATTACH_X,
     Float:E_ITEM_BUILD_ATTACH_Y,
     Float:E_ITEM_BUILD_ATTACH_Z,
@@ -88,7 +87,8 @@ static enum E_ITEM_BUILD_DATA {
     E_ITEM_BUILD_MATERIAL_COLOUR_1,
     E_ITEM_BUILD_MATERIAL_COLOUR_2,
     bool:E_ITEM_BUILD_USE_CARRY_ANIM,
-    E_ITEM_BUILD_ATTACH_BONE_ID
+    E_ITEM_BUILD_ATTACH_BONE_ID,
+    Float:E_ITEM_BUILD_BTN_OFFSET_Z
 };
 
 static
@@ -99,9 +99,8 @@ static
 static enum E_ITEM_DATA {
     ItemBuild:E_ITEM_BUILD_ID,
     E_ITEM_EXTRA_ID,
-    
-    // WORLD:
 
+    // World
     Float:E_ITEM_X,
     Float:E_ITEM_Y,
     Float:E_ITEM_Z,
@@ -116,8 +115,7 @@ static enum E_ITEM_DATA {
     Button:E_ITEM_BUTTON_ID,
     STREAMER_TAG_OBJECT:E_ITEM_OBJECT_ID,
 
-    // EXTRA:
-
+    // Extra
     E_ITEM_UUID[UUID_LEN],
     E_ITEM_EXTRA_NAME[MAX_ITEM_NAME]
 };
@@ -148,16 +146,13 @@ new
  * # Functions
  */
 
-forward ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:worldRotY = 0.0, Float:worldRotZ = 0.0, Float:objectOffsetZ = 0.0, Float:attachX = 0.0, Float:attachY = 0.0, Float:attachZ = 0.0, Float:attachRotX = 0.0, Float:attachRotY = 0.0, Float:attachRotZ = 0.0, materialColour1 = 0, materialColour2 = 0, bool:useCarryAnim = false, bone = 6, Float:buttonOffsetZ = ITEM_FLOOR_OFFSET);
+forward ItemBuild:BuildItem(const name[], modelid, Float:objRotOffsetX = 0.0, Float:objRotOffsetY = 0.0, Float:objRotOffsetZ = 0.0, Float:objOffsetZ = 0.0, Float:attachX = 0.0, Float:attachY = 0.0, Float:attachZ = 0.0, Float:attachRotX = 0.0, Float:attachRotY = 0.0, Float:attachRotZ = 0.0, materialColour1 = 0, materialColour2 = 0, bool:useCarryAnim = false, bone = 6, Float:buttonOffsetZ = ITEM_FLOOR_OFFSET);
 forward bool:IsValidItemBuild(ItemBuild:buildid);
 forward bool:GetItemBuildName(ItemBuild:buildid, output[], size = sizeof (output));
 forward GetItemBuildModel(ItemBuild:buildid);
-forward bool:SetItemBuildFlags(ItemBuild:buildid, flags);
-forward GetItemBuildFlags(ItemBuild:buildid);
-forward bool:HasItemBuildFlags(ItemBuild:buildid, flags);
 forward CountItemBuild();
 
-forward Item:CreateItem(ItemBuild:buildid, const uuid[] = "", extraid = -1);
+forward Item:CreateItem(ItemBuild:buildid, const uuid[] = "", extraid = -1, const extraName[] = "");
 forward bool:DestroyItem(Item:itemid);
 forward bool:IsValidItem(Item:itemid);
 forward ItemBuild:GetItemBuild(Item:itemid, &ItemBuild:buildid = INVALID_ITEM_BUILD_ID);
@@ -183,17 +178,18 @@ forward bool:SetItemLabelText(Item:itemid, const format[], colour = 0xFFFFFFFF, 
 forward bool:GetItemButton(Item:itemid, &Button:buttonid);
 forward bool:HasButtonItem(Button:buttonid);
 forward bool:GetButtonItem(Button:buttonid, &Item:itemid);
+forward bool:GetPlayerItem(playerid, &Item:itemid);
 forward bool:GetPlayerNearbyItems(playerid, Item:items[MAX_AREA_BUTTONS] = { INVALID_ITEM_ID, ... }, &count = 0);
-forward bool:SetPlayerItem(playerid, Item:itemid);
-forward bool:GiveWorldItemToPlayer(playerid, Item:itemid);
 
+forward bool:GiveWorldItemToPlayer(playerid, Item:itemid);
+forward bool:SetPlayerItem(playerid, Item:itemid);
 forward bool:PlayerPickUpItem(playerid, Item:itemid);
 forward bool:PlayerDropItem(playerid);
-forward bool:RemoveCurrentItem(playerid);
 forward bool:PlayerUseItem(playerid);
+forward bool:RemoveCurrentItem(playerid);
 forward GetItemHolder(Item:itemid);
 forward GetItemInteractor(Item:itemid);
-forward Item:GetPlayerItem(playerid, &Item:itemid = INVALID_ITEM_ID);
+forward Item:GetPlayerHoldItem(playerid, &Item:itemid = INVALID_ITEM_ID);
 forward Item:GetPlayerInteractItem(playerid, &Item:itemid = INVALID_ITEM_ID);
 
 /**
@@ -219,7 +215,7 @@ forward OnPlayerUseItem(playerid, Item:itemid);
  * # Item Build
  */
 
-stock ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:worldRotY = 0.0, Float:worldRotZ = 0.0, Float:objectOffsetZ = 0.0, Float:attachX = 0.0, Float:attachY = 0.0, Float:attachZ = 0.0, Float:attachRotX = 0.0, Float:attachRotY = 0.0, Float:attachRotZ = 0.0, materialColour1 = 0, materialColour2 = 0, bool:useCarryAnim = false, bone = 6, Float:buttonOffsetZ = ITEM_FLOOR_OFFSET) {
+stock ItemBuild:BuildItem(const name[], modelid, Float:objRotOffsetX = 0.0, Float:objRotOffsetY = 0.0, Float:objRotOffsetZ = 0.0, Float:objOffsetZ = 0.0, Float:attachX = 0.0, Float:attachY = 0.0, Float:attachZ = 0.0, Float:attachRotX = 0.0, Float:attachRotY = 0.0, Float:attachRotZ = 0.0, materialColour1 = 0, materialColour2 = 0, bool:useCarryAnim = false, bone = 6, Float:buttonOffsetZ = ITEM_FLOOR_OFFSET) {
     if (gItemBuildCount >= MAX_ITEM_BUILDS) {
         return INVALID_ITEM_BUILD_ID;
     }
@@ -231,13 +227,13 @@ stock ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:wo
     strcopy(gItemBuildData[buildid][E_ITEM_BUILD_NAME], name);
     gItemBuildData[buildid][E_ITEM_BUILD_MODEL_ID] = modelid;
 
-    gItemBuildData[buildid][E_ITEM_BUILD_ROT_OFFSET_X] = worldRotX;
-    gItemBuildData[buildid][E_ITEM_BUILD_ROT_OFFSET_Y] = worldRotY;
-    gItemBuildData[buildid][E_ITEM_BUILD_ROT_OFFSET_Z] = worldRotZ;
+    // World
+    gItemBuildData[buildid][E_ITEM_BUILD_OBJ_ROT_OFFSET_X] = objRotOffsetX;
+    gItemBuildData[buildid][E_ITEM_BUILD_OBJ_ROT_OFFSET_Y] = objRotOffsetY;
+    gItemBuildData[buildid][E_ITEM_BUILD_OBJ_ROT_OFFSET_Z] = objRotOffsetZ;
+    gItemBuildData[buildid][E_ITEM_BUILD_OBJ_OFFSET_Z] = objOffsetZ;
 
-    gItemBuildData[buildid][E_ITEM_BUILD_OBJ_OFFSET_Z] = objectOffsetZ;
-    gItemBuildData[buildid][E_ITEM_BUILD_BTN_OFFSET_Z] = buttonOffsetZ;
-
+    // Attach
     gItemBuildData[buildid][E_ITEM_BUILD_ATTACH_X] = attachX;
     gItemBuildData[buildid][E_ITEM_BUILD_ATTACH_Y] = attachY;
     gItemBuildData[buildid][E_ITEM_BUILD_ATTACH_Z] = attachZ;
@@ -248,6 +244,7 @@ stock ItemBuild:BuildItem(const name[], modelid, Float:worldRotX = 0.0, Float:wo
     gItemBuildData[buildid][E_ITEM_BUILD_MATERIAL_COLOUR_2] = materialColour2;
     gItemBuildData[buildid][E_ITEM_BUILD_USE_CARRY_ANIM] = useCarryAnim;
     gItemBuildData[buildid][E_ITEM_BUILD_ATTACH_BONE_ID] = bone;
+    gItemBuildData[buildid][E_ITEM_BUILD_BTN_OFFSET_Z] = buttonOffsetZ;
 
     return buildid;
 }
@@ -274,32 +271,6 @@ stock GetItemBuildModel(ItemBuild:buildid) {
     return gItemBuildData[buildid][E_ITEM_BUILD_MODEL_ID];
 }
 
-stock bool:SetItemBuildFlags(ItemBuild:buildid, flags) {
-    if (!IsValidItemBuild(buildid)) {
-        return false;
-    }
-
-    gItemBuildData[buildid][E_ITEM_BUILD_FLAGS] ^= flags;
-
-    return true;
-}
-
-stock GetItemBuildFlags(ItemBuild:buildid) {
-    if (!IsValidItemBuild(buildid)) {
-        return 0;
-    }
-
-    return gItemBuildData[buildid][E_ITEM_BUILD_FLAGS];
-}
-
-stock bool:HasItemBuildFlags(ItemBuild:buildid, flags) {
-    if (!IsValidItemBuild(buildid)) {
-        return false;
-    }
-
-    return ((gItemBuildData[buildid][E_ITEM_BUILD_FLAGS] & flags) == gItemBuildData[buildid][E_ITEM_BUILD_FLAGS]);
-}
-
 stock CountItemBuild() {
     return _:gItemBuildCount;
 }
@@ -308,7 +279,7 @@ stock CountItemBuild() {
  * # Item
  */
 
-stock Item:CreateItem(ItemBuild:buildid, const uuid[] = "", extraid = -1) {
+stock Item:CreateItem(ItemBuild:buildid, const uuid[] = "", extraid = -1, const extraName[] = "") {
     if (!IsValidItemBuild(buildid)) {
         return INVALID_ITEM_ID;
     }
@@ -325,6 +296,10 @@ stock Item:CreateItem(ItemBuild:buildid, const uuid[] = "", extraid = -1) {
         UUID(gItemData[itemid][E_ITEM_UUID]);
     } else {
         strcopy(gItemData[itemid][E_ITEM_UUID], uuid);
+    }
+
+    if (!isnull(extraName)) {
+        strcopy(gItemData[itemid][E_ITEM_EXTRA_NAME], extraName);
     }
 
     gItemData[itemid][E_ITEM_BUILD_ID] = buildid;
@@ -560,10 +535,14 @@ stock bool:SetItemRot(Item:itemid, Float:rotationX, Float:rotationY, Float:rotat
     }
 
     if (useRotOffsets) {
+        new const
+            ItemBuild:buildid = gItemData[itemid][E_ITEM_BUILD_ID]
+        ;
+
         SetDynamicObjectRot(gItemData[itemid][E_ITEM_OBJECT_ID],
-            rotationX + gBuildData[gItemData[itemid][E_ITEM_BUILD_ID]][E_BUILD_WORLD_OFFSET_X],
-            rotationY + gBuildData[gItemData[itemid][E_ITEM_BUILD_ID]][E_BUILD_WORLD_OFFSET_Y],
-            rotationZ + gBuildData[gItemData[itemid][E_ITEM_BUILD_ID]][E_BUILD_WORLD_OFFSET_Z]
+            rotationX + gItemBuildData[buildid][E_ITEM_BUILD_OBJ_ROT_OFFSET_X],
+            rotationY + gItemBuildData[buildid][E_ITEM_BUILD_OBJ_ROT_OFFSET_Y],
+            rotationZ + gItemBuildData[buildid][E_ITEM_BUILD_OBJ_ROT_OFFSET_Z]
         );
     } else {
         SetDynamicObjectRot(gItemData[itemid][E_ITEM_OBJECT_ID], rotationX, rotationY, rotationZ);
@@ -654,6 +633,18 @@ stock bool:GetButtonItem(Button:buttonid, &Item:itemid) {
     return GetButtonExtraData(buttonid, BUTTON_ATTRIBUTE_ITEM_ID, _:itemid);
 }
 
+stock bool:GetPlayerItem(playerid, &Item:itemid) {
+    new
+        Button:buttonid
+    ;
+
+    if (!GetPlayerButton(playerid, buttonid)) {
+        return false;
+    }
+
+    return GetButtonExtraData(buttonid, BUTTON_ATTRIBUTE_ITEM_ID, _:itemid);
+}
+
 stock bool:GetPlayerNearbyItems(playerid, Item:items[MAX_AREA_BUTTONS] = { INVALID_ITEM_ID, ... }, &count = 0) {
     if (!IsPlayerConnected(playerid)) {
         return false;
@@ -682,19 +673,9 @@ stock bool:GetPlayerNearbyItems(playerid, Item:items[MAX_AREA_BUTTONS] = { INVAL
     return (count != 0);
 }
 
-stock bool:SetPlayerItem(playerid, Item:itemid) {
-    if (!IsPlayerConnected(playerid)) {
-        return false;
-    }
-
-    if (!IsValidItem(itemid)) {
-        return false;
-    }
-
-    PlayerGetItemInternal(playerid, itemid);
-
-    return true;
-}
+/**
+ * # Interaction
+ */
 
 stock bool:GiveWorldItemToPlayer(playerid, Item:itemid) {
     if (!IsPlayerConnected(playerid)) {
@@ -705,72 +686,23 @@ stock bool:GiveWorldItemToPlayer(playerid, Item:itemid) {
         return false;
     }
 
-    PlayerGetItemInternal(playerid, itemid);
+    SetPlayerItemInternal(playerid, itemid);
 
     return true;
 }
 
-/**
- * # Interaction
- */
-
-stock timer PickUpItemDelay[400](playerid, bool:animation) {
-    if (animation) {
-        ApplyAnimation(playerid, "BOMBER", "BOM_PLANT_2IDLE", 4.0, false, false, false, false, 0);
+stock bool:SetPlayerItem(playerid, Item:itemid) {
+    if (!IsPlayerConnected(playerid)) {
+        return false;
     }
 
-    new const
-        Item:itemid = gInteractItemID[playerid]
-    ;
-
-    gInteractItemID[playerid] = INVALID_ITEM_ID;
-    gItemInteractorID[itemid] = INVALID_PLAYER_ID;
-
-    if (CallLocalFunction("OnPlayerPickedUpItem", "ii", playerid, _:itemid)) {
-        return;
+    if (!IsValidItem(itemid)) {
+        return false;
     }
 
-    GiveWorldItemToPlayer(playerid, itemid);
-}
+    SetPlayerItemInternal(playerid, itemid);
 
-stock timer DropItemDelay[400](playerid) {
-    if (!IsValidItem(gHoldItemID[playerid])) {
-        return;
-    }
-
-    new
-        Float:x,
-        Float:y,
-        Float:z,
-        Float:a
-    ;
-
-    GetPlayerPos(playerid, x, y, z);
-    GetPlayerFacingAngle(playerid, a);
-
-    new const
-        Item:itemid = gHoldItemID[playerid]
-    ;
-
-    CreateItemInWorld(
-        itemid,
-        (x + (0.85 * floatsin(-a, degrees))),
-        (y + (0.85 * floatcos(-a, degrees))),
-        (z - ITEM_FLOOR_OFFSET),
-        0.0,
-        0.0,
-        a,
-        _,
-        GetPlayerVirtualWorld(playerid),
-        GetPlayerInterior(playerid)
-    );
-
-    RemoveCurrentItem(playerid);
-    ApplyAnimation(playerid, "BOMBER", "BOM_PLANT_2IDLE", 4.0, false, false, false, false, 0);
-
-    Streamer_Update(playerid);
-
-    CallLocalFunction("OnPlayerDroppedItem", "ii", playerid, _:itemid);
+    return true;
 }
 
 stock bool:PlayerPickUpItem(playerid, Item:itemid) {
@@ -854,6 +786,28 @@ stock bool:PlayerDropItem(playerid) {
     return true;
 }
 
+stock bool:PlayerUseItem(playerid) {
+    if (!IsPlayerConnected(playerid)) {
+        return false;
+    }
+
+    if (!IsIdleAnimationInternal(GetPlayerAnimationIndex(playerid))) {
+        return false;
+    }
+
+    if (gInteractItemID[playerid] != INVALID_ITEM_ID) {
+        return false;
+    }
+
+    if (gHoldItemID[playerid] == INVALID_ITEM_ID) {
+        return false;
+    }
+
+    CallLocalFunction("OnPlayerUseItem", "ii", playerid, _:gHoldItemID[playerid]);
+
+    return true;
+}
+
 stock bool:RemoveCurrentItem(playerid) {
     if (!IsPlayerConnected(playerid)) {
         return false;
@@ -884,28 +838,6 @@ stock bool:RemoveCurrentItem(playerid) {
     return true;
 }
 
-stock bool:PlayerUseItem(playerid) {
-    if (!IsPlayerConnected(playerid)) {
-        return false;
-    }
-
-    if (!IsIdleAnimationInternal(GetPlayerAnimationIndex(playerid))) {
-        return false;
-    }
-
-    if (gInteractItemID[playerid] != INVALID_ITEM_ID) {
-        return false;
-    }
-
-    if (gHoldItemID[playerid] == INVALID_ITEM_ID) {
-        return false;
-    }
-
-    CallLocalFunction("OnPlayerUseItem", "ii", playerid, _:gHoldItemID[playerid]);
-
-    return true;
-}
-
 stock GetItemHolder(Item:itemid) {
     if (!IsValidItem(itemid)) {
         return INVALID_PLAYER_ID;
@@ -922,7 +854,7 @@ stock GetItemInteractor(Item:itemid) {
     return gItemInteractorID[itemid];
 }
 
-stock Item:GetPlayerItem(playerid, &Item:itemid = INVALID_ITEM_ID) {
+stock Item:GetPlayerHoldItem(playerid, &Item:itemid = INVALID_ITEM_ID) {
     if (!IsPlayerConnected(playerid)) {
         itemid = INVALID_ITEM_ID;
         
@@ -950,7 +882,66 @@ stock Item:GetPlayerInteractItem(playerid, &Item:itemid = INVALID_ITEM_ID) {
  * # Internal
  */
 
-static stock void:PlayerGetItemInternal(playerid, Item:itemid) {
+stock timer PickUpItemDelay[400](playerid, bool:animation) {
+    if (animation) {
+        ApplyAnimation(playerid, "BOMBER", "BOM_PLANT_2IDLE", 4.0, false, false, false, false, 0);
+    }
+
+    new const
+        Item:itemid = gInteractItemID[playerid]
+    ;
+
+    gInteractItemID[playerid] = INVALID_ITEM_ID;
+    gItemInteractorID[itemid] = INVALID_PLAYER_ID;
+
+    if (CallLocalFunction("OnPlayerPickedUpItem", "ii", playerid, _:itemid)) {
+        return;
+    }
+
+    GiveWorldItemToPlayer(playerid, itemid);
+}
+
+stock timer DropItemDelay[400](playerid) {
+    if (!IsValidItem(gHoldItemID[playerid])) {
+        return;
+    }
+
+    new
+        Float:x,
+        Float:y,
+        Float:z,
+        Float:a
+    ;
+
+    GetPlayerPos(playerid, x, y, z);
+    GetPlayerFacingAngle(playerid, a);
+
+    new const
+        Item:itemid = gHoldItemID[playerid]
+    ;
+
+    CreateItemInWorld(
+        itemid,
+        (x + (0.85 * floatsin(-a, degrees))),
+        (y + (0.85 * floatcos(-a, degrees))),
+        (z - ITEM_FLOOR_OFFSET),
+        0.0,
+        0.0,
+        a,
+        _,
+        GetPlayerVirtualWorld(playerid),
+        GetPlayerInterior(playerid)
+    );
+
+    RemoveCurrentItem(playerid);
+    ApplyAnimation(playerid, "BOMBER", "BOM_PLANT_2IDLE", 4.0, false, false, false, false, 0);
+
+    Streamer_Update(playerid);
+
+    CallLocalFunction("OnPlayerDroppedItem", "ii", playerid, _:itemid);
+}
+
+static stock void:SetPlayerItemInternal(playerid, Item:itemid) {
     RemoveItemFromWorld(itemid);
     RemoveCurrentItem(GetItemHolder(itemid));
 
