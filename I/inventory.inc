@@ -14,8 +14,8 @@
  * # Header
  */
 
-#if !defined MAX_INVENTORY_CAPACITY
-    #define MAX_INVENTORY_CAPACITY (100)
+#if !defined MAX_INVENTORY_SIZE
+    #define MAX_INVENTORY_SIZE (100)
 #endif
 
 #if !defined INVENTORY_CONTAINER_NAME
@@ -63,7 +63,7 @@ stock bool:Iter_Func@InventoryItem(playerid) {
     new
         Item:itemid
     ;
-    
+
     foreach ((_:itemid) : ContainerItem(gOwnerContainerID[playerid])) {
         yield return (_:itemid);
     }
@@ -197,7 +197,7 @@ stock bool:GetInventoryContainer(playerid, &Container:containerid) {
 
 static void:PlayerInvSetupInternal(playerid) {
     new const
-        Container:containerid = CreateContainer(INVENTORY_CONTAINER_NAME, MAX_INVENTORY_CAPACITY)
+        Container:containerid = CreateContainer(INVENTORY_CONTAINER_NAME, MAX_INVENTORY_SIZE)
     ;
 
     if (!IsValidContainer(containerid)) {
