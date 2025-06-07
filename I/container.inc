@@ -53,7 +53,7 @@ new
  * # Functions
  */
 
-forward Container:CreateContainer(const name[], size, bool:ordered = true);
+forward Container:CreateContainer(const name[], size, bool:ordered = false);
 forward bool:DestroyContainer(Container:containerid, bool:clear = true);
 forward bool:IsValidContainer(Container:containerid);
 forward bool:SetContainerName(Container:containerid, const name[]);
@@ -102,7 +102,7 @@ stock bool:Iter_Func@ContainerItem(Container:containerid) {
  * # External
  */
 
-stock Container:CreateContainer(const name[], size, bool:ordered = true) {
+stock Container:CreateContainer(const name[], size, bool:ordered = false) {
     if (!(1 <= size <= MAX_CONTAINER_SIZE)) {
         return INVALID_CONTAINER_ID;
     }
